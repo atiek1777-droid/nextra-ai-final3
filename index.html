@@ -1,0 +1,2557 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+<title>Nextra AI | نكسترا — مساعدك الذكي المجاني</title>
+<meta name="description" content="Nextra AI، مساعد ذكاء اصطناعي مجاني بالعربي والإنجليزي" />
+
+<!-- PWA: يسمح بتثبيت Nextra AI كتطبيق على أندرويد وآيفون -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#031c19">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nextra AI">
+<meta name="mobile-web-app-capable" content="yes">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&family=Inter:wght@400;500;600&family=Cairo:wght@700;800&family=Almarai:wght@700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root, [data-theme="night"]{
+    --ink: #191f14;
+    --ink-2: #2a3322;
+    --ink-3: #3a4530;
+    --petal: #f8f8f0;
+    --petal-dim: #c4c9ba;
+    --gold: #99ac8d;
+    --gold-2: #abb79d;
+    --gold-dim: #4c5f40;
+    --sage: #99ac8d;
+    --danger: #d98a76;
+    --bg-glow-1: rgba(153,172,141,.10);
+    --bg-glow-2: rgba(76,95,64,.28);
+    --radius: 18px;
+  }
+  [data-theme="gold"]{
+    --ink: #0e120b;
+    --ink-2: #1c2415;
+    --ink-3: #262f1c;
+    --petal: #f8f8f0;
+    --petal-dim: #a9b09c;
+    --gold: #abb79d;
+    --gold-2: #c7d1ba;
+    --gold-dim: #4c5f40;
+    --sage: #4c5f40;
+    --danger: #d98a76;
+    --bg-glow-1: #1a2113;
+    --bg-glow-2: #10150c;
+  }
+  [data-theme="light"]{
+    --ink: #f8f8f0;
+    --ink-2: #ffffff;
+    --ink-3: #eef0e6;
+    --petal: #2c3524;
+    --petal-dim: #6b7360;
+    --gold: #4c5f40;
+    --gold-2: #3c4b32;
+    --gold-dim: #99ac8d;
+    --sage: #4c5f40;
+    --danger: #b1544a;
+    --bg-glow-1: #eef1e6;
+    --bg-glow-2: #e6ecdf;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 800px at 15% -10%, var(--bg-glow-1) 0%, transparent 60%),
+      radial-gradient(1000px 700px at 110% 10%, var(--bg-glow-2) 0%, transparent 55%),
+      var(--ink);
+    color:var(--petal);
+    font-family:'IBM Plex Sans Arabic', 'Tajawal', 'Inter', sans-serif;
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+    overflow-x:hidden;
+    transition:background .3s ease, color .3s ease;
+  }
+  body.lang-en{ font-family:'Inter', 'Tajawal', sans-serif; }
+
+  .display-font{ font-family:'Aref Ruqaa', 'Cormorant Garamond', serif; }
+  body.lang-en .display-font{ font-family:'Cormorant Garamond', 'Aref Ruqaa', serif; }
+
+  /* (الهيدر القديم استُبدل بـ .topbar الجديد أدناه) */
+
+  /* ===== Petal bloom mark ===== */
+  .petal{ transform-origin:50% 50%; animation:bloom-in 1.1s cubic-bezier(.2,.9,.25,1) both; }
+  .petal:nth-child(1){ animation-delay:.02s; }
+  .petal:nth-child(2){ animation-delay:.08s; }
+  .petal:nth-child(3){ animation-delay:.14s; }
+  .petal:nth-child(4){ animation-delay:.20s; }
+  .petal:nth-child(5){ animation-delay:.26s; }
+  @keyframes bloom-in{
+    from{ transform:scale(0.2) rotate(-12deg); opacity:0; }
+    to{ transform:scale(1) rotate(0deg); opacity:1; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .petal{ animation:none; }
+  }
+
+  /* ===== Chat area (داخل بطاقة chat-card) ===== */
+  #main{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    width:100%;
+    padding:14px 18px;
+    overflow-y:auto;
+    min-height:360px;
+    max-height:62vh;
+    gap:2px;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .empty-state{
+    margin:auto;
+    text-align:center;
+    color:var(--petal-dim);
+    padding:30px 14px;
+  }
+  .empty-state .mark-lg{ width:64px; height:auto; margin:0 auto 16px; opacity:.95; object-fit:contain; }
+  .empty-state h1{ font-size:22px; margin:0 0 8px; color:var(--petal); font-weight:700; }
+  .empty-state p{ font-size:13.5px; line-height:1.8; max-width:380px; margin:0 auto; }
+  .suggestions{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:18px; }
+  .chip{
+    border:1px solid rgba(203,164,92,0.3);
+    color:var(--petal-dim);
+    background:rgba(203,164,92,0.05);
+    padding:9px 16px;
+    border-radius:999px;
+    font-size:13px;
+    cursor:pointer;
+    transition:.2s;
+    font-family:inherit;
+  }
+  .chip:hover{ border-color:var(--gold); color:var(--gold); }
+
+  .suggestion-chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    margin:-2px 0 14px;
+    padding-inline-start:4px;
+  }
+  .sugg-chip{
+    border:1px solid rgba(203,164,92,0.28);
+    color:var(--gold);
+    background:rgba(203,164,92,0.06);
+    padding:7px 14px;
+    border-radius:999px;
+    font-size:12.5px;
+    cursor:pointer;
+    transition:.18s;
+    font-family:inherit;
+  }
+  .sugg-chip:hover{ background:rgba(203,164,92,0.15); border-color:var(--gold); }
+  .sugg-chip:active{ transform:scale(0.97); }
+
+  .msg{
+    display:flex;
+    margin-bottom:12px;
+    animation:rise .35s ease both;
+  }
+  @keyframes rise{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+  .msg.user{ justify-content:flex-start; }
+  [dir="rtl"] .msg.user{ justify-content:flex-start; }
+  .msg.assistant{ justify-content:flex-start; }
+
+  .bubble{
+    max-width:88%;
+    padding:12px 16px;
+    border-radius:var(--radius);
+    line-height:1.65;
+    font-size:15px;
+    word-break:break-word;
+  }
+  .bubble p{ margin:0 0 8px; white-space:pre-wrap; unicode-bidi:plaintext; text-align:start; }
+  .bubble p:last-child{ margin-bottom:0; }
+  .bubble ul, .bubble ol{ margin:0 0 8px; padding-inline-start:20px; unicode-bidi:plaintext; }
+  .bubble ul:last-child, .bubble ol:last-child{ margin-bottom:0; }
+  .bubble li{ margin-bottom:3px; unicode-bidi:plaintext; text-align:start; }
+  .bubble li:last-child{ margin-bottom:0; }
+  .bubble strong{ color:var(--gold); font-weight:700; }
+  .bubble code{ unicode-bidi:isolate; direction:ltr; display:inline-block; font-family:'Courier New',monospace; background:rgba(0,0,0,0.18); padding:1px 5px; border-radius:4px; font-size:0.9em; }
+  .bubble pre{ direction:ltr; text-align:left; overflow-x:auto; background:rgba(0,0,0,0.22); padding:10px 12px; border-radius:10px; margin:0 0 8px; }
+  .bubble pre code{ background:none; padding:0; display:block; }
+  .msg.user .bubble p{ white-space:pre-wrap; }
+  .msg.user .bubble{
+    background:linear-gradient(135deg, var(--gold), var(--gold-dim));
+    color:#1a1408;
+    border-bottom-left-radius:6px;
+    margin-inline-start:auto;
+  }
+  .msg.assistant .bubble{
+    background:var(--ink-2);
+    border:1px solid rgba(143,174,148,0.18);
+    border-bottom-right-radius:6px;
+  }
+  [dir="rtl"] .msg.user .bubble{ border-bottom-left-radius:6px; border-bottom-right-radius:var(--radius); margin-inline-start:auto; margin-inline-end:0;}
+  [dir="rtl"] .msg.assistant .bubble{ border-bottom-right-radius:6px; border-bottom-left-radius:var(--radius); }
+
+  /* ===== Message actions toolbar ===== */
+  .msg-actions{
+    display:flex;
+    gap:4px;
+    margin-top:6px;
+    padding-inline-start:4px;
+  }
+  .msg-actions button, .msg-actions a{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:30px; height:30px;
+    border-radius:50%;
+    border:none;
+    background:transparent;
+    color:var(--petal-dim);
+    cursor:pointer;
+    transition:all .15s ease;
+    text-decoration:none;
+  }
+  .msg-actions button:hover, .msg-actions a:hover{ background:rgba(203,164,92,0.12); color:var(--gold); }
+  .msg-actions button.active-like{ color:#8fae94; }
+  .msg-actions button.active-like svg{ fill:#8fae94; }
+  .msg-actions button.active-speak{ color:var(--gold); background:rgba(203,164,92,0.12); }
+  .msg-actions svg{ width:15px; height:15px; }
+  .msg-actions .copied-tag{
+    font-size:11px;
+    color:var(--sage);
+    align-self:center;
+    padding:0 4px;
+    animation:rise .2s ease both;
+  }
+
+  .typing{ display:flex; gap:5px; padding:6px 4px; align-items:center; }
+  .typing span{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--gold);
+    animation:blink 1.2s infinite ease-in-out;
+  }
+  .typing span:nth-child(2){ animation-delay:.18s; }
+  .typing span:nth-child(3){ animation-delay:.36s; }
+  @keyframes blink{ 0%,80%,100%{opacity:.25; transform:scale(.85);} 40%{opacity:1; transform:scale(1);} }
+
+  /* ===== Input bar ===== */
+  .input-wrap{
+    padding:10px 14px 14px;
+    background:transparent;
+  }
+  .input-bar{
+    max-width:760px;
+    margin:0 auto;
+    display:flex;
+    align-items:flex-end;
+    gap:10px;
+    background:var(--ink-2);
+    border:1px solid rgba(203,164,92,0.28);
+    border-radius:20px;
+    padding:10px 10px 10px 16px;
+  }
+  [dir="rtl"] .input-bar{ padding:10px 16px 10px 10px; }
+  .input-bar textarea{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    resize:none;
+    color:var(--petal);
+    font-family:inherit;
+    font-size:15px;
+    line-height:1.6;
+    max-height:140px;
+    padding:6px 0;
+  }
+  .input-bar textarea::placeholder{ color:var(--petal-dim); opacity:.6; }
+  .send-btn{
+    width:40px; height:40px;
+    border-radius:50%;
+    border:none;
+    background:var(--gold);
+    color:#1a1408;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    transition:transform .15s ease, background .15s ease;
+  }
+  .send-btn:hover{ transform:scale(1.06); background:#dcb975; }
+  .send-btn:disabled{ opacity:.4; cursor:default; transform:none; }
+  .send-btn svg{ width:18px; height:18px; }
+  [dir="rtl"] .send-btn svg{ transform:scaleX(-1); }
+
+  .image-toggle{
+    width:40px; height:40px;
+    border-radius:50%;
+    border:1px solid rgba(203,164,92,0.35);
+    background:transparent;
+    color:var(--petal-dim);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    transition:all .18s ease;
+  }
+  .image-toggle svg{ width:18px; height:18px; }
+  .image-toggle:hover{ border-color:var(--gold); color:var(--gold); }
+  .image-toggle.active{
+    background:var(--gold);
+    border-color:var(--gold);
+    color:#1a1408;
+  }
+  .attach-btn{
+    width:40px; height:40px;
+    border-radius:50%;
+    border:1px solid rgba(203,164,92,0.35);
+    background:transparent;
+    color:var(--petal-dim);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    transition:all .18s ease;
+  }
+  .attach-btn svg{ width:17px; height:17px; }
+  .attach-btn:hover{ border-color:var(--gold); color:var(--gold); }
+  .attach-btn.active{ background:var(--gold); border-color:var(--gold); color:#1a1408; }
+
+  .image-preview-bar{
+    display:none;
+    align-items:center;
+    gap:10px;
+    max-width:760px;
+    margin:0 auto 8px;
+    padding:8px 12px;
+    background:var(--ink-2);
+    border:1px solid rgba(203,164,92,0.25);
+    border-radius:14px;
+  }
+  .image-preview-bar.show{ display:flex; }
+  .image-preview-bar img{ width:38px; height:38px; border-radius:8px; object-fit:cover; }
+  .image-preview-bar span{ flex:1; font-size:12.5px; color:var(--petal-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .image-preview-bar button{
+    border:none; background:transparent; color:var(--petal-dim); cursor:pointer; font-size:16px; padding:4px;
+  }
+  .image-preview-bar button:hover{ color:var(--danger); }
+
+  /* صورة داخل فقاعة المستخدم (المرفوعة) */
+  .bubble .user-img{ max-width:220px; border-radius:12px; display:block; margin-bottom:6px; }
+
+  .mode-banner{
+    max-width:760px;
+    margin:0 auto 10px;
+    display:none;
+    align-items:center;
+    gap:8px;
+    color:var(--gold);
+    font-size:12.5px;
+    padding:0 4px;
+  }
+  .mode-banner.show{ display:flex; }
+  .mode-banner svg{ width:14px; height:14px; }
+
+  /* ===== Image quality bar (مجاني/مدفوع) ===== */
+  .quality-bar{
+    max-width:760px;
+    margin:0 auto 6px;
+    display:none;
+    gap:8px;
+    padding:0 4px;
+  }
+  .quality-bar.show{ display:flex; }
+  .quality-chip{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+    border:1px solid rgba(153,172,141,0.28);
+    background:rgba(153,172,141,0.05);
+    color:var(--petal-dim);
+    padding:8px 10px;
+    border-radius:12px;
+    cursor:pointer;
+    font-family:inherit;
+    transition:.18s;
+  }
+  .quality-chip:hover{ border-color:var(--gold); }
+  .quality-chip.active{
+    background:rgba(153,172,141,0.14);
+    border-color:var(--gold);
+    color:var(--petal);
+  }
+  .quality-chip-title{ font-size:12.5px; font-weight:600; }
+  .quality-chip-sub{ font-size:10px; opacity:.75; }
+  .quality-note{
+    display:none;
+    max-width:760px;
+    margin:0 auto 8px;
+    padding:8px 12px;
+    font-size:11px;
+    line-height:1.7;
+    color:var(--petal-dim);
+    background:rgba(153,172,141,0.06);
+    border:1px solid rgba(153,172,141,0.2);
+    border-radius:10px;
+  }
+  .quality-note.show{ display:block; }
+
+  /* ===== Specialization bar ===== */
+  .specialization-bar{
+    max-width:760px;
+    margin:0 auto 8px;
+    display:flex;
+    gap:6px;
+    padding:0 4px;
+    overflow-x:auto;
+  }
+  .spec-chip{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    border:1px solid rgba(203,164,92,0.25);
+    background:transparent;
+    color:var(--petal-dim);
+    padding:6px 13px;
+    border-radius:999px;
+    font-size:12.5px;
+    font-family:inherit;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:.18s;
+  }
+  .spec-chip:hover{ border-color:var(--gold); color:var(--gold); }
+  .spec-chip.active{
+    background:var(--gold);
+    border-color:var(--gold);
+    color:#1a1408;
+    font-weight:600;
+  }
+
+  /* ===== Mic button ===== */
+  .mic-btn{
+    width:40px; height:40px;
+    border-radius:50%;
+    border:1px solid rgba(203,164,92,0.35);
+    background:transparent;
+    color:var(--petal-dim);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    transition:all .18s ease;
+    position:relative;
+  }
+  .mic-btn svg{ width:18px; height:18px; }
+  .mic-btn:hover{ border-color:var(--gold); color:var(--gold); }
+  .mic-btn.recording{
+    background:#c25b4a;
+    border-color:#c25b4a;
+    color:#fff;
+    animation:micPulse 1.4s ease-in-out infinite;
+  }
+  @keyframes micPulse{
+    0%, 100%{ box-shadow:0 0 0 0 rgba(194,91,74,0.5); }
+    50%{ box-shadow:0 0 0 8px rgba(194,91,74,0); }
+  }
+  .mic-btn.transcribing{ opacity:.6; pointer-events:none; }
+  .mic-btn.transcribing svg{ animation:spin 1s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* ===== Image message card ===== */
+  .image-card{
+    max-width:320px;
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:var(--ink-2);
+    border:1px solid rgba(203,164,92,0.22);
+  }
+  .image-card .frame{
+    position:relative;
+    width:100%;
+    aspect-ratio:1/1;
+    background:linear-gradient(120deg, var(--ink-3) 25%, #2c4e44 37%, var(--ink-3) 63%);
+    background-size:400% 100%;
+    animation:shimmer 1.6s ease-in-out infinite;
+  }
+  @keyframes shimmer{ 0%{background-position:100% 0;} 100%{background-position:0 0;} }
+  .image-card img{
+    width:100%; height:100%;
+    object-fit:cover;
+    display:block;
+    opacity:0;
+    transition:opacity .4s ease;
+  }
+  .image-card img.loaded{ opacity:1; }
+  .image-card .frame.loaded{ animation:none; background:none; }
+  .image-card .meta{
+    padding:10px 13px 12px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .image-card .prompt-text{
+    font-size:12px;
+    color:var(--petal-dim);
+    line-height:1.6;
+    flex:1;
+  }
+  .image-card .dl-btn{
+    flex-shrink:0;
+    width:28px; height:28px;
+    border-radius:50%;
+    border:1px solid rgba(203,164,92,0.3);
+    background:transparent;
+    color:var(--gold);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+  }
+  .image-card .dl-btn svg{ width:14px; height:14px; }
+  .image-card .err-state{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:8px;
+    color:var(--petal-dim);
+    font-size:12px;
+    padding:16px;
+    text-align:center;
+  }
+  .image-card .retry-btn{
+    border:1px solid rgba(203,164,92,0.4);
+    background:transparent;
+    color:var(--gold);
+    padding:5px 14px;
+    border-radius:999px;
+    font-size:12px;
+    cursor:pointer;
+    font-family:inherit;
+  }
+
+  .disclaimer{
+    text-align:center;
+    font-size:11px;
+    color:var(--petal-dim);
+    opacity:.55;
+    margin-top:10px;
+  }
+
+  .error-banner{
+    max-width:760px;
+    margin:0 auto 14px;
+    background:rgba(217,138,122,0.12);
+    border:1px solid rgba(217,138,122,0.4);
+    color:#f0b8ab;
+    padding:10px 14px;
+    border-radius:12px;
+    font-size:13px;
+  }
+
+  @keyframes footerGradient{
+    0%{ background-position:0% 50%; }
+    100%{ background-position:300% 50%; }
+  }
+  @keyframes footerWave{
+    0%, 100%{ transform:translateY(0); }
+    50%{ transform:translateY(-2px); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .about-credit{ animation:footerGradient 5s linear infinite; }
+  }
+
+  /* ===== Header "About" icon button ===== */
+  .icon-btn.icon-only{
+    width:36px; height:36px;
+    padding:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .icon-btn.icon-only svg{ width:17px; height:17px; }
+
+  /* ===== About modal (Yemen-flag animated credit) ===== */
+  .about-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(10,16,14,0.72);
+    backdrop-filter:blur(3px);
+    z-index:90;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .about-overlay.show{ display:flex; }
+
+  /* ===== Sidebar (المحادثات المتعددة) ===== */
+  .sidebar-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(10,16,14,0.6);
+    backdrop-filter:blur(2px);
+    z-index:60;
+  }
+  .sidebar-overlay.show{ display:block; }
+  .sidebar-panel{
+    position:absolute;
+    top:0; bottom:0;
+    inset-inline-start:0;
+    width:280px;
+    max-width:82vw;
+    background:var(--ink-2);
+    border-inline-end:1px solid rgba(203,164,92,0.18);
+    display:flex;
+    flex-direction:column;
+    transform:translateX(-100%);
+    transition:transform .25s ease;
+  }
+  [dir="rtl"] .sidebar-panel{ transform:translateX(100%); }
+  .sidebar-overlay.show .sidebar-panel{ transform:translateX(0); }
+  .sidebar-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 16px 10px;
+    font-weight:700;
+    color:var(--petal);
+  }
+  .sidebar-header button{
+    border:none; background:transparent; color:var(--petal-dim); font-size:16px; cursor:pointer; padding:6px;
+  }
+  .sidebar-new-btn{
+    display:flex; align-items:center; gap:8px;
+    margin:4px 14px 10px;
+    padding:10px 14px;
+    border-radius:12px;
+    border:1px solid rgba(203,164,92,0.35);
+    background:transparent;
+    color:var(--gold);
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.18s;
+  }
+  .sidebar-new-btn:hover{ background:rgba(203,164,92,0.1); }
+  .sidebar-new-btn svg{ width:16px; height:16px; }
+  .sidebar-list{
+    flex:1;
+    overflow-y:auto;
+    padding:4px 10px 16px;
+  }
+  .sidebar-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 10px;
+    border-radius:10px;
+    cursor:pointer;
+    color:var(--petal-dim);
+    font-size:13px;
+    margin-bottom:2px;
+    transition:.15s;
+  }
+  .sidebar-item:hover{ background:rgba(203,164,92,0.08); }
+  .sidebar-item.active{ background:rgba(203,164,92,0.16); color:var(--gold); }
+  .sidebar-item span.title{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sidebar-item button.del{
+    border:none; background:transparent; color:var(--petal-dim); opacity:0; cursor:pointer; font-size:13px; padding:3px;
+    flex-shrink:0;
+  }
+  .sidebar-item:hover button.del{ opacity:0.7; }
+  .sidebar-item button.del:hover{ opacity:1; color:var(--danger); }
+
+  /* ===== تسجيل الدخول ===== */
+  .auth-overlay{
+    display:none; position:fixed; inset:0; background:rgba(3,20,18,.75);
+    backdrop-filter:blur(4px); z-index:96; align-items:center; justify-content:center; padding:20px;
+  }
+  .auth-overlay.show{ display:flex; }
+  .auth-modal{
+    position:relative; max-width:360px; width:100%;
+    background:var(--ink-2); border:1px solid rgba(212,166,71,.3);
+    border-radius:22px; padding:30px 24px 24px; text-align:center;
+    max-height:88vh; overflow-y:auto;
+  }
+  .auth-modal h3{ margin:0 0 6px; font-size:17px; color:var(--petal); }
+  .auth-sub{ font-size:12px; color:var(--petal-dim); margin:0 0 20px; line-height:1.7; }
+  .auth-google-btn{
+    width:100%; display:flex; align-items:center; justify-content:center; gap:10px;
+    background:#fff; color:#1f1f1f; border:none; border-radius:12px;
+    padding:12px; font-family:inherit; font-weight:600; font-size:13.5px; cursor:pointer;
+  }
+  .auth-google-btn:hover{ background:#f2f2f2; }
+  .auth-google-btn:disabled, .auth-full-btn:disabled, .auth-input:disabled{
+    opacity:.4; cursor:not-allowed; filter:grayscale(0.5);
+  }
+  .auth-google-btn:disabled:hover{ background:#fff; }
+  .auth-divider{ display:flex; align-items:center; gap:10px; margin:16px 0; color:var(--petal-dim); font-size:11px; }
+  .auth-divider::before, .auth-divider::after{ content:""; flex:1; height:1px; background:rgba(212,166,71,.2); }
+  .auth-phone-note{ font-size:11px; color:var(--gold-2); background:rgba(212,166,71,.08); border:1px solid rgba(212,166,71,.2); border-radius:10px; padding:9px 11px; margin-bottom:12px; line-height:1.7; text-align:start; }
+  .auth-input{
+    width:100%; background:var(--ink); border:1px solid rgba(212,166,71,.22); color:var(--petal);
+    border-radius:11px; padding:11px 13px; font-family:inherit; font-size:13.5px; margin-bottom:10px;
+  }
+  .auth-full-btn{ width:100%; text-align:center; }
+  .auth-error{ color:var(--danger); font-size:12px; margin-top:10px; min-height:14px; }
+  .auth-user-chip{
+    display:flex; align-items:center; gap:8px;
+    border:1px solid rgba(212,166,71,.25); border-radius:999px; padding:6px 12px 6px 6px;
+    background:rgba(8,43,38,.7); cursor:pointer; font-size:12.5px; color:var(--petal);
+  }
+  .auth-user-chip img{ width:24px; height:24px; border-radius:50%; }
+
+  /* ===== الأسعار ===== */
+  .pricing-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:20px;
+    max-width:760px; margin:0 auto;
+  }
+  .pricing-card{
+    position:relative;
+    border:1px solid rgba(212,166,71,.18);
+    background:linear-gradient(180deg, rgba(9,45,39,.55), rgba(5,34,30,.65));
+    border-radius:20px; padding:28px 24px;
+    box-shadow:0 15px 35px rgba(0,0,0,.12);
+  }
+  .pricing-card--gold{
+    border-color:rgba(212,166,71,.55);
+    background:linear-gradient(180deg, rgba(46,36,10,.5), rgba(9,45,39,.65));
+    box-shadow:0 18px 50px rgba(212,166,71,.14);
+  }
+  .pricing-badge{
+    position:absolute; top:-12px; inset-inline-start:24px;
+    background:linear-gradient(180deg,var(--gold-2),var(--gold));
+    color:#1e1912; font-size:11px; font-weight:700;
+    padding:5px 14px; border-radius:999px;
+  }
+  .pricing-card h3{ margin:0 0 6px; font-size:17px; color:var(--petal); }
+  .pricing-price{ font-size:30px; font-weight:800; color:var(--gold-2); margin-bottom:16px; }
+  .pricing-price span{ font-size:13px; font-weight:400; color:var(--petal-dim); }
+  .pricing-features{ list-style:none; padding:0; margin:0 0 22px; display:flex; flex-direction:column; gap:9px; }
+  .pricing-features li{ font-size:13px; color:var(--petal-dim); }
+  .pricing-btn{ width:100%; text-align:center; }
+
+  .pricing-overlay{
+    display:none; position:fixed; inset:0; background:rgba(3,20,18,.75);
+    backdrop-filter:blur(4px); z-index:92; align-items:center; justify-content:center; padding:20px;
+  }
+  .pricing-overlay.show{ display:flex; }
+  .pricing-modal{
+    position:relative; max-width:360px; width:100%;
+    background:var(--ink-2); border:1px solid rgba(212,166,71,.3);
+    border-radius:22px; padding:30px 24px 24px; text-align:center;
+  }
+  .pricing-modal h3{ margin:0 0 8px; font-size:17px; color:var(--petal); }
+  .pricing-modal-price{ font-size:26px; font-weight:800; color:var(--gold-2); margin-bottom:12px; }
+  .pricing-modal-price span{ font-size:12px; font-weight:400; color:var(--petal-dim); }
+  .pricing-modal-text{ font-size:12.5px; line-height:1.8; color:var(--petal-dim); margin-bottom:20px; }
+  .pricing-wa-btn{ display:flex; align-items:center; justify-content:center; gap:6px; width:100%; margin-bottom:10px; text-decoration:none; }
+  .pricing-modal-note{ font-size:11px; color:var(--petal-dim); opacity:.75; margin-top:14px; }
+
+  @media (max-width:820px){
+    .pricing-grid{ grid-template-columns:1fr; gap:14px; }
+    .pricing-card{ padding:22px 18px; }
+  }
+
+  .about-modal{
+    position:relative;
+    max-width:340px;
+    width:100%;
+    background:var(--ink-2);
+    border:1px solid rgba(203,164,92,0.3);
+    border-radius:20px;
+    padding:32px 22px 24px;
+    text-align:center;
+    animation:rise .25s ease both;
+  }
+  .about-close{
+    position:absolute;
+    top:10px; left:10px;
+    width:28px; height:28px;
+    border-radius:50%;
+    border:none;
+    background:transparent;
+    color:var(--petal-dim);
+    cursor:pointer;
+    font-size:15px;
+  }
+  .about-close:hover{ color:var(--gold); }
+  .about-credit{
+    font-family:'Cairo', 'Almarai', 'Tajawal', sans-serif;
+    font-weight:800;
+    font-size:14.5px;
+    line-height:1.9;
+    margin-bottom:16px;
+
+    background:linear-gradient(90deg, #ce1126, #ffffff, #3a3a3a, #ce1126, #ffffff, #3a3a3a);
+    background-size:300% auto;
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    color:transparent;
+    -webkit-text-stroke:0.3px rgba(247,243,232,0.4);
+
+    animation:footerGradient 5s linear infinite, footerWave 3.2s ease-in-out infinite;
+  }
+  .about-contacts{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .about-contacts a{
+    color:var(--sage);
+    text-decoration:none;
+    font-size:13px;
+    border:1px solid rgba(143,174,148,0.3);
+    border-radius:999px;
+    padding:8px 14px;
+    transition:.2s;
+  }
+  .about-contacts a:hover{ background:rgba(143,174,148,0.1); }
+  .about-rights{
+    font-size:11px;
+    color:var(--petal-dim);
+    opacity:.7;
+  }
+
+
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background:rgba(203,164,92,0.25); border-radius:8px; }
+
+  /* ===== بانر تثبيت التطبيق ===== */
+  .install-banner{
+    display:none;
+    align-items:center;
+    gap:10px;
+    padding:9px 14px;
+    background:linear-gradient(90deg, var(--gold-dim), var(--ink-2));
+    border-bottom:1px solid rgba(212,166,71,.25);
+    position:relative;
+    z-index:99;
+  }
+  .install-banner.show{ display:flex; }
+  .install-banner-icon{ width:30px; height:30px; object-fit:contain; flex-shrink:0; }
+  .install-banner-text{ display:flex; flex-direction:column; flex:1; min-width:0; }
+  .install-banner-text strong{ font-size:12.5px; color:var(--petal); }
+  .install-banner-text span{ font-size:10.5px; color:var(--petal-dim); }
+  .install-banner-btn{
+    background:linear-gradient(180deg,var(--gold-2),var(--gold));
+    color:#1e1912; border:none; border-radius:10px;
+    padding:7px 16px; font-family:inherit; font-weight:700; font-size:12px; cursor:pointer; flex-shrink:0;
+  }
+  .install-banner-close{
+    background:transparent; border:none; color:var(--petal-dim);
+    font-size:14px; padding:6px; cursor:pointer; flex-shrink:0;
+  }
+  @media (max-width:480px){
+    .install-banner-text span{ display:none; }
+  }
+
+  /* ========================================================= */
+  /* ===== الصفحة التسويقية الجديدة (Topbar / Hero / إلخ) ===== */
+  /* ========================================================= */
+
+  .topbar{
+    position:sticky; top:12px; z-index:40;
+    width:min(94%,1400px);
+    margin:12px auto 0;
+    padding:10px 18px;
+    border:1px solid rgba(212,166,71,.22);
+    border-radius:20px;
+    background:rgba(4,27,24,.88);
+    backdrop-filter:blur(14px);
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    align-items:center;
+    box-shadow:0 18px 60px rgba(0,0,0,.26);
+  }
+  .brand{ display:flex; flex-direction:column; align-items:center; gap:0; justify-self:center; }
+  .brand__logo{ width:150px; height:auto; display:block; }
+  .brand__caption{ font-size:10.5px; color:var(--petal-dim); margin-top:-2px; }
+  .topnav{ display:flex; align-items:center; gap:28px; justify-self:start; }
+  .topnav a{ font-size:13.5px; color:var(--petal); position:relative; padding:9px 0; }
+  .topnav a:hover, .topnav__active{ color:var(--gold-2); }
+  .topnav__active::after{ content:""; position:absolute; inset-inline:0; bottom:0; height:2px; border-radius:2px; background:var(--gold); }
+  .topbar__actions{ display:flex; align-items:center; gap:9px; justify-self:end; }
+  .lang-btn, .login-btn, .outline-btn{
+    border:1px solid rgba(212,166,71,.22); color:var(--petal); background:rgba(8,43,38,.7);
+    border-radius:12px; padding:9px 13px; font-family:inherit; cursor:pointer; font-size:12.5px;
+  }
+  .lang-btn:hover, .login-btn:hover{ border-color:var(--gold); color:var(--gold-2); }
+  .gold-btn{
+    border:1px solid rgba(255,236,181,.18);
+    background:linear-gradient(180deg,var(--gold-2),var(--gold));
+    color:#1e1912; border-radius:13px; padding:11px 18px;
+    box-shadow:0 10px 30px rgba(212,166,71,.18);
+    font-family:inherit; font-weight:700; cursor:pointer; font-size:13.5px;
+    transition:transform .15s ease;
+  }
+  .gold-btn:hover{ transform:translateY(-1px); }
+  .mobile-menu-btn{ display:none; border:1px solid rgba(212,166,71,.2); background:rgba(5,34,30,.72); color:var(--gold-2); border-radius:12px; width:40px; height:40px; font-size:18px; }
+  .mobile-menu{ display:none; }
+  .mobile-menu.show{
+    display:flex; flex-direction:column; gap:8px; padding:14px;
+    position:fixed; top:78px; inset-inline:9px; z-index:85;
+    border:1px solid rgba(212,166,71,.22); border-radius:18px;
+    background:var(--ink-2); box-shadow:0 18px 60px rgba(0,0,0,.3);
+  }
+  .mobile-menu a{ padding:11px 12px; border-radius:10px; background:rgba(10,45,40,.5); font-size:13.5px; color:var(--petal); }
+
+  .hero{
+    width:min(94%,1360px); margin:22px auto 0;
+    display:grid; grid-template-columns:36% 64%; gap:22px; align-items:center;
+    padding:20px 0 34px;
+  }
+  .hero__copy{ padding-inline:14px; }
+  .eyebrow{ font-size:13px; letter-spacing:.16em; color:var(--gold-2); text-transform:uppercase; margin:0 0 10px; }
+  .hero h1{ font-size:clamp(34px,4vw,58px); line-height:1.12; margin:0 0 16px; font-weight:800; letter-spacing:-.02em; }
+  .hero h1 span{ display:block; color:var(--gold-2); }
+  .hero__text{ font-size:16.5px; line-height:1.85; color:var(--petal-dim); max-width:520px; }
+  .hero__buttons{ display:flex; gap:12px; flex-wrap:wrap; margin-top:22px; }
+  .outline-btn{ display:inline-flex; align-items:center; justify-content:center; padding:11px 18px; }
+
+  .chat-card{
+    min-height:540px; border:1px solid rgba(212,166,71,.3); border-radius:24px;
+    background:linear-gradient(145deg, var(--ink-3), var(--ink-2));
+    box-shadow:0 18px 60px rgba(0,0,0,.26);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .chat-main{ display:flex; flex-direction:column; min-width:0; flex:1; min-height:0; }
+  .chat-toolbar{ display:flex; justify-content:space-between; align-items:center; padding:16px 18px 10px; }
+  .assistant-meta{ display:flex; align-items:center; gap:10px; }
+  .assistant-meta img{ width:40px; height:40px; object-fit:contain; }
+  .assistant-meta strong{ display:block; font-size:15px; color:var(--petal); }
+  .assistant-meta span{ display:flex; align-items:center; gap:4px; color:var(--petal-dim); font-size:11px; margin-top:2px; }
+  .assistant-meta i{ display:inline-block; width:7px; height:7px; background:var(--sage); border-radius:50%; }
+  .toolbar-actions{ display:flex; align-items:center; gap:8px; }
+  .dots{ border:1px solid rgba(212,166,71,.16); background:rgba(7,38,34,.64); color:var(--gold-2); border-radius:12px; padding:8px 12px; letter-spacing:2px; cursor:pointer; }
+  .history-toggle-btn{ display:none; }
+
+  #main .msg{ margin-bottom:12px; }
+  .chat-compose-wrap{ padding:0; }
+
+  .content-section{ width:min(92%,1300px); margin:0 auto; padding:50px 0 36px; }
+  .section-heading{ text-align:center; margin-bottom:26px; }
+  .section-heading p{ color:var(--petal-dim); margin:0 0 4px; font-size:13.5px; }
+  .section-heading h2{ font-size:27px; margin:0; font-weight:800; color:var(--petal); }
+  .section-heading h2 span{ color:var(--gold-2); }
+  .feature-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  .info-card, .usecase-card{
+    border:1px solid rgba(212,166,71,.15);
+    background:linear-gradient(180deg, rgba(9,45,39,.55), rgba(5,34,30,.65));
+    border-radius:18px; box-shadow:0 15px 35px rgba(0,0,0,.12);
+  }
+  .info-card{ display:flex; align-items:flex-start; gap:14px; padding:22px; }
+  .info-icon, .usecase-icon{
+    width:46px; height:46px; border:1px solid rgba(212,166,71,.34); border-radius:50%;
+    display:grid; place-items:center; color:var(--gold-2); font-weight:800; flex:none; font-size:16px;
+  }
+  .info-card h3, .usecase-card h3{ margin:0 0 6px; font-size:15px; color:var(--petal); }
+  .info-card p, .usecase-card p{ margin:0; color:var(--petal-dim); font-size:12px; line-height:1.75; }
+  .content-section--compact{ padding-top:22px; }
+  .usecase-grid{ display:grid; grid-template-columns:repeat(6,1fr); gap:14px; }
+  .usecase-card{ padding:18px; text-align:center; }
+  .usecase-icon{ margin:0 auto 11px; }
+
+  .cta-section{
+    width:min(90%,1300px); margin:24px auto 50px; padding:26px 30px;
+    border:1px solid rgba(212,166,71,.33); border-radius:22px;
+    background:linear-gradient(90deg, rgba(6,42,36,.9), rgba(9,53,45,.8));
+    display:flex; align-items:center; justify-content:space-between;
+    box-shadow:0 18px 60px rgba(0,0,0,.26); flex-wrap:wrap; gap:16px;
+  }
+  .cta-section h2{ margin:0 0 5px; font-size:25px; color:var(--petal); }
+  .cta-section p{ margin:0; color:var(--petal-dim); }
+
+  .footer{
+    width:min(92%,1300px); margin:0 auto; padding:20px 0 36px;
+    border-top:1px solid rgba(212,166,71,.15);
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+    color:var(--petal-dim); font-size:11px;
+  }
+  .footer .brand__logo{ width:110px; }
+  .footer__links{ display:flex; gap:20px; }
+  .footer__links a{ color:var(--petal-dim); }
+  .footer__links a:hover{ color:var(--gold-2); }
+  .mobile-bottom-nav{ display:none; }
+
+  @media (max-width:1100px){
+    .topbar{ grid-template-columns:auto 1fr auto; }
+    .topnav{ gap:16px; }
+    .topnav a{ font-size:12px; }
+    .hero{ grid-template-columns:1fr; max-width:820px; }
+    .hero__copy{ text-align:center; padding-inline:0; }
+    .hero__text{ margin-inline:auto; }
+    .hero__buttons{ justify-content:center; }
+    .feature-grid{ grid-template-columns:repeat(2,1fr); }
+    .usecase-grid{ grid-template-columns:repeat(3,1fr); }
+  }
+  @media (max-width:820px){
+    body{ padding-bottom:74px; margin:0; }
+    .topbar{
+      position:sticky; top:0; z-index:80;
+      width:100%; margin:0; left:0; right:0;
+      grid-template-columns:44px 1fr 44px; padding:10px 12px;
+      border-radius:0; border-inline:none; border-top:none;
+      background:var(--ink); box-shadow:0 4px 18px rgba(0,0,0,.35);
+    }
+    .brand__logo{ width:130px; }
+    .brand__caption{ display:none; }
+    .topnav, .topbar__actions{ display:none; }
+    .mobile-menu-btn{ display:grid; place-items:center; }
+    .hero{ width:100%; padding:8px 8px 6px; gap:0; }
+    /* على الجوال: نخفي نص التعريف التسويقي، والشات يفتح مباشرة بكامل الشاشة زي تطبيق حقيقي */
+    .hero__copy{ display:none; }
+    .chat-card{ min-height:calc(100dvh - 128px); border-radius:20px; display:flex; }
+    .chat-main{ flex:1; min-height:0; }
+    .history-toggle-btn{ display:grid !important; }
+    .chat-toolbar{ padding:13px 13px 8px; }
+    .assistant-meta img{ width:36px; height:36px; }
+    .assistant-meta strong{ font-size:13.5px; }
+    #main{ flex:1; min-height:0; max-height:none; padding:8px 12px; }
+    .chat-compose-wrap{ position:sticky; bottom:0; z-index:5; background:linear-gradient(180deg, transparent, var(--ink-2) 35%); padding-top:6px; }
+    .content-section{ width:100%; padding:32px 12px 22px; }
+    .section-heading{ margin-bottom:15px; }
+    .section-heading h2{ font-size:21px; }
+    .feature-grid{ grid-template-columns:1fr; gap:10px; }
+    .info-card{ padding:15px; }
+    .usecase-grid{ grid-template-columns:repeat(2,1fr); gap:10px; }
+    .usecase-card{ padding:14px 12px; }
+    .usecase-card h3{ font-size:13px; }
+    .usecase-card p{ font-size:10.5px; }
+    .cta-section{ width:calc(100% - 24px); margin:10px auto 30px; padding:20px 16px; flex-direction:column; text-align:center; }
+    .cta-section h2{ font-size:20px; }
+    .cta-section .gold-btn{ width:100%; }
+    .footer{ width:calc(100% - 24px); padding-bottom:90px; flex-direction:column; text-align:center; }
+    .mobile-bottom-nav{
+      position:fixed; bottom:0; inset-inline:0; z-index:55;
+      display:grid; grid-template-columns:repeat(4,1fr);
+      padding:8px 6px max(8px, env(safe-area-inset-bottom));
+      background:rgba(4,31,28,.96); border-top:1px solid rgba(212,166,71,.2);
+      backdrop-filter:blur(15px);
+    }
+    .mobile-bottom-nav button{
+      border:0; background:transparent; color:var(--petal-dim);
+      display:flex; flex-direction:column; align-items:center; gap:2px; padding:3px;
+      font-family:inherit; cursor:pointer;
+    }
+    .mobile-bottom-nav button svg{ width:20px; height:20px; }
+    .mobile-bottom-nav button small{ font-size:9.5px; }
+    .mobile-bottom-nav__active{ color:var(--gold-2) !important; }
+  }
+  @media (max-width:420px){
+    .brand__logo{ width:118px; }
+    .hero h1{ font-size:29px; }
+    .hero__text{ font-size:13.5px; }
+    .usecase-grid{ grid-template-columns:1fr 1fr; }
+  }
+
+  @media (max-width:480px){
+    .empty-state h1{ font-size:20px; }
+    .bubble{ max-width:92%; font-size:14.5px; }
+  }
+</style>
+
+<!-- تسجيل الدخول (Firebase Authentication) — Google مجاني بالكامل، الهاتف يحتاج خطة Blaze -->
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+<div class="install-banner" id="installBanner">
+  <img src="nextra-mark.png" alt="" class="install-banner-icon" />
+  <div class="install-banner-text">
+    <strong id="installBannerTitle">ثبّت تطبيق Nextra AI</strong>
+    <span id="installBannerSub">وصول أسرع من شاشتك الرئيسية</span>
+  </div>
+  <button class="install-banner-btn" id="installBannerBtn">تثبيت</button>
+  <button class="install-banner-close" id="installBannerClose" aria-label="Close">✕</button>
+</div>
+
+<header class="topbar">
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="فتح القائمة">☰</button>
+  <div class="brand">
+    <img class="brand__logo" src="nextra-logo.png" alt="Nextra AI" />
+  </div>
+  <nav class="topnav" aria-label="التنقل الرئيسي">
+    <a href="#home" class="topnav__active" id="navHome">الرئيسية</a>
+    <a href="#features" id="navFeatures">المميزات</a>
+    <a href="#features" id="navHow">كيف يعمل؟</a>
+    <a href="#usecases" id="navUsecases">المجالات</a>
+    <a href="#pricing" id="navPricing">الأسعار</a>
+  </nav>
+  <div class="topbar__actions">
+    <button class="icon-btn icon-only" id="themeBtn" aria-label="Theme" title="تغيير المظهر">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 000 20 4 4 0 010-8 3 3 0 000-6 4 4 0 010-6z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="9.5" cy="6.5" r="1"/><circle cx="14.5" cy="6.5" r="1"/></svg>
+    </button>
+    <button class="lang-btn" id="langBtn">◎ EN</button>
+    <button class="login-btn" id="loginBtn">تسجيل الدخول</button>
+    <button class="gold-btn" id="ctaTopBtn">ابدأ مجاناً ✦</button>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#home">الرئيسية</a>
+  <a href="#features">المميزات</a>
+  <a href="#features">كيف يعمل؟</a>
+  <a href="#usecases">المجالات</a>
+  <a href="#pricing">الأسعار</a>
+  <button class="login-btn" id="loginBtnMobile">تسجيل الدخول</button>
+  <button class="gold-btn" id="ctaMobileBtn">ابدأ مجاناً ✦</button>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay">
+  <div class="sidebar-panel" id="sidebarPanel">
+    <div class="sidebar-header">
+      <span id="sidebarTitle">المحادثات</span>
+      <button id="sidebarClose" aria-label="Close">✕</button>
+    </div>
+    <button class="sidebar-new-btn" id="sidebarNewBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span id="sidebarNewText">محادثة جديدة</span>
+    </button>
+    <div class="sidebar-list" id="sidebarList"></div>
+  </div>
+</div>
+
+<section id="home" class="hero">
+  <div class="hero__copy">
+    <p class="eyebrow">Nextra AI</p>
+    <h1 id="heroTitle">مساعدك الذكي <span id="heroTitleSpan">لكل يوم</span></h1>
+    <p class="hero__text" id="heroText">اسأل، اكتب، حلّل، تعلّم وأنجز مهامك بسهولة مع Nextra AI.</p>
+    <div class="hero__buttons">
+      <button class="gold-btn" id="ctaHeroBtn">ابدأ المحادثة مجاناً ✦</button>
+      <a class="outline-btn" href="#features" id="ctaDiscoverBtn">اكتشف المميزات ‹</a>
+    </div>
+  </div>
+
+  <section class="chat-card" aria-label="واجهة محادثة Nextra AI">
+    <div class="chat-main">
+      <div class="chat-toolbar">
+        <div class="assistant-meta">
+          <img src="nextra-mark.png" alt="" />
+          <div><strong>Nextra AI</strong><span><i></i> متصل الآن</span></div>
+        </div>
+        <div class="toolbar-actions">
+          <button class="icon-btn icon-only history-toggle-btn" id="historyBtn" aria-label="History" title="المحادثات السابقة">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <button class="icon-btn icon-only" id="newChatBtn" aria-label="New chat" title="محادثة جديدة">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <button class="dots" id="aboutBtn" aria-label="About" title="حول Nextra AI">•••</button>
+        </div>
+      </div>
+
+      <div class="mode-chips specialization-bar" id="specializationBar">
+        <button class="spec-chip active" data-spec="general" id="specGeneral"><span class="spec-label">عام</span> <i>✦</i></button>
+        <button class="spec-chip" data-spec="coding" id="specCoding"><span class="spec-label">برمجة</span> <i>&lt;/&gt;</i></button>
+        <button class="spec-chip" data-spec="analysis" id="specAnalysis"><span class="spec-label">تحليل</span> <i>▥</i></button>
+      </div>
+
+      <main id="main">
+        <div class="empty-state" id="emptyState">
+          <img class="mark-lg" src="nextra-mark.png" alt="Nextra AI logo" />
+          <h1 class="display-font" id="emptyTitle">أهلاً، كيف أقدر أساعدك؟</h1>
+          <p id="emptySub">اسأليني أي شيء بالعربي أو الإنجليزي — أنا هنا للمساعدة.</p>
+          <div class="suggestions" id="suggestions"></div>
+        </div>
+        <div id="messages"></div>
+      </main>
+      <div id="errorBanner"></div>
+
+      <div class="chat-compose-wrap">
+        <div class="input-wrap">
+          <div class="mode-banner" id="modeBanner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span id="modeBannerText">وضع إنشاء الصور مفعّل — صف الصورة اللي تبيها</span>
+          </div>
+          <div class="quality-bar" id="qualityBar">
+            <button class="quality-chip active" data-quality="free" id="qualityFree">
+              <span class="quality-chip-title">🌸 مجاني</span>
+              <span class="quality-chip-sub">Pollinations</span>
+            </button>
+            <button class="quality-chip" data-quality="premium" id="qualityPremium">
+              <span class="quality-chip-title">💎 جودة عالية</span>
+              <span class="quality-chip-sub">مدفوع — Gemini</span>
+            </button>
+          </div>
+          <div class="quality-note" id="qualityNote">هذا الخيار مدفوع (~0.02$–0.04$ للصورة) وتُحسب تكلفته على مالك الموقع حسب سياسته — قد يُطلب اشتراك لاحقاً لاستخدامه.</div>
+          <div class="image-preview-bar" id="imagePreviewBar">
+            <img id="imagePreviewThumb" alt="" />
+            <span id="imagePreviewName"></span>
+            <button id="imagePreviewRemove" aria-label="Remove image">✕</button>
+          </div>
+          <div class="input-bar">
+            <button class="image-toggle" id="imageToggle" aria-label="Image mode" title="إنشاء صورة">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            </button>
+            <button class="attach-btn" id="attachBtn" aria-label="Upload image" title="رفع صورة">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+            </button>
+            <input type="file" id="fileInput" accept="image/*" style="display:none" />
+            <textarea id="input" rows="1" placeholder="اكتب رسالتك هنا…"></textarea>
+            <button class="mic-btn" id="micBtn" aria-label="Voice input" title="تسجيل صوتي">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            </button>
+            <button class="send-btn" id="sendBtn" aria-label="Send">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </div>
+          <div class="disclaimer" id="disclaimer">قد يُخطئ Nextra AI أحياناً — تحققي من المعلومات المهمة</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
+
+<section id="features" class="content-section">
+  <div class="section-heading">
+    <p id="featuresEyebrow">مصمم حول طريقة عملك</p>
+    <h2 id="featuresTitle">كل ما تحتاجه في <span>مساعد ذكي واحد</span></h2>
+  </div>
+  <div class="feature-grid" id="featureGrid">
+    <div class="info-card"><div class="info-icon">✦</div><div><h3>إجابات ذكية</h3><p>إجابات دقيقة وسريعة توفر وقتك وتزيد إنتاجيتك.</p></div></div>
+    <div class="info-card"><div class="info-icon">◈</div><div><h3>فهم السياق</h3><p>يفهم محادثتك ويقدّم إجابات أكثر دقة وارتباطًا.</p></div></div>
+    <div class="info-card"><div class="info-icon">◎</div><div><h3>دعم العربية والإنجليزية</h3><p>تواصل بلغتك المفضلة بسهولة ووضوح، بدون أي قيود.</p></div></div>
+    <div class="info-card"><div class="info-icon">&lt;/&gt;</div><div><h3>كتابة وتحليل وبرمجة</h3><p>كتابة احترافية، تحليل ذكي، ودعم برمجي متكامل.</p></div></div>
+  </div>
+</section>
+
+<section id="usecases" class="content-section content-section--compact">
+  <div class="section-heading">
+    <h2 id="usecasesTitle">مصمم ليكون <span>مساعدك اليومي</span></h2>
+  </div>
+  <div class="usecase-grid" id="usecaseGrid">
+    <div class="usecase-card"><div class="usecase-icon">✎</div><h3>الكتابة</h3><p>مقالات، تقارير، محتوى احترافي في ثوان.</p></div>
+    <div class="usecase-card"><div class="usecase-icon">◍</div><h3>التعلم</h3><p>شرح الدروس وتبسيط المفاهيم على الفهم.</p></div>
+    <div class="usecase-card"><div class="usecase-icon">&lt;/&gt;</div><h3>البرمجة</h3><p>حل الأكواد، تصحيح الأخطاء ودعم المشاريع.</p></div>
+    <div class="usecase-card"><div class="usecase-icon">▤</div><h3>تحليل الملفات</h3><p>تحليل النصوص، الجداول والملفات المختلفة.</p></div>
+    <div class="usecase-card"><div class="usecase-icon">▣</div><h3>التخطيط</h3><p>خطط يومك، مشاريعك، وأهدافك بذكاء.</p></div>
+    <div class="usecase-card"><div class="usecase-icon">✦</div><h3>العصف الذهني</h3><p>أفكار جديدة، حلول مبتكرة ورؤى إبداعية.</p></div>
+  </div>
+</section>
+
+<section id="pricing" class="content-section content-section--compact">
+  <div class="section-heading">
+    <p>خطط بسيطة، بدون مفاجآت</p>
+    <h2>اختر <span>الخطة المناسبة لك</span></h2>
+  </div>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <h3>مجاني</h3>
+      <div class="pricing-price">0$ <span>/ للأبد</span></div>
+      <ul class="pricing-features">
+        <li>✓ محادثة نصية غير محدودة</li>
+        <li>✓ الصوت (تحدث واستماع)</li>
+        <li>✓ رفع وفهم الصور</li>
+        <li>✓ 3 صور مولّدة بالساعة</li>
+        <li>✓ التخصصات الثلاثة</li>
+      </ul>
+      <button class="outline-btn pricing-btn" id="pricingFreeBtn">هذي خطتك الحالية</button>
+    </div>
+    <div class="pricing-card pricing-card--gold">
+      <span class="pricing-badge">الأكثر شعبية</span>
+      <h3>مميز</h3>
+      <div class="pricing-price">2.99$ <span>/ شهرياً</span></div>
+      <ul class="pricing-features">
+        <li>✓ كل مميزات الخطة المجانية</li>
+        <li>✓ 50 صورة مولّدة يومياً</li>
+        <li>✓ أولوية بأوقات الازدحام</li>
+        <li>✓ دعم مباشر عبر واتساب</li>
+      </ul>
+      <button class="gold-btn pricing-btn" id="pricingProBtn">اشترك الآن ✦</button>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div>
+    <h2 id="ctaTitle">جاهز لتجربة Nextra AI؟</h2>
+    <p id="ctaText">ابدأ محادثتك الأولى مجاناً.</p>
+  </div>
+  <button class="gold-btn" id="ctaBottomBtn">ابدأ الآن ✦</button>
+</section>
+
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-modal">
+    <button class="about-close" id="authClose" aria-label="Close">✕</button>
+    <img src="nextra-mark.png" alt="" style="width:44px;height:auto;margin:0 auto 10px;display:block;" />
+    <h3 id="authTitle">أهلاً بك في Nextra AI</h3>
+    <p class="auth-sub">سجّل دخولك عشان تحفظ محادثاتك وتفعّل اشتراكك من أي جهاز<br><small>(أول مرة تدخل بحسابك، يتم إنشاء حسابك تلقائياً — بدون خطوة تسجيل منفصلة)</small></p>
+
+    <button class="auth-google-btn" id="googleSignInBtn">
+      <svg viewBox="0 0 48 48" width="18" height="18"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34 5.1 29.3 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34 5.1 29.3 3 24 3 16.3 3 9.7 7.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 45c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 36.4 26.7 37 24 37c-5.2 0-9.6-3.3-11.3-8l-6.6 5.1C9.6 40.6 16.2 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.3-4.1 5.7l6.2 5.2C40.9 36.6 45 30.9 45 24c0-1.4-.1-2.7-.4-3.5z"/></svg>
+      <span id="googleSignInText">الدخول بحساب Gmail</span>
+    </button>
+
+    <div class="auth-divider"><span>أو</span></div>
+
+    <div id="phoneAuthBlock">
+      <div class="auth-phone-note">⚠️ الدخول برقم الهاتف يحتاج رسوم رسالة تحقق صغيرة — إذا واجهت مشكلة، استخدم Gmail بدل ذلك.</div>
+      <input type="tel" id="phoneInput" class="auth-input" placeholder="+967 7XXXXXXXX" dir="ltr" />
+      <button class="outline-btn auth-full-btn" id="sendOtpBtn">إرسال رمز التحقق</button>
+      <div id="otpBlock" style="display:none;">
+        <input type="text" id="otpInput" class="auth-input" placeholder="رمز التحقق" dir="ltr" inputmode="numeric" />
+        <button class="gold-btn auth-full-btn" id="verifyOtpBtn">تأكيد الدخول</button>
+      </div>
+      <div id="recaptchaContainer"></div>
+    </div>
+    <div id="authError" class="auth-error"></div>
+  </div>
+</div>
+
+<div class="pricing-overlay" id="pricingOverlay">
+  <div class="pricing-modal">
+    <button class="about-close" id="pricingClose" aria-label="Close">✕</button>
+    <img src="nextra-mark.png" alt="" style="width:44px;height:auto;margin:0 auto 10px;display:block;" />
+    <h3>اشتراك Nextra AI المميز</h3>
+    <div class="pricing-modal-price">2.99$ <span>/ شهرياً</span></div>
+    <p class="pricing-modal-text">الدفع رقمي بالكامل عبر التواصل المباشر مع أحد الرقمين — تأكد من دفعتك خلال دقائق ويتم تفعيل اشتراكك يدوياً.</p>
+    <a class="gold-btn pricing-wa-btn" href="https://wa.me/967779339333?text=مرحباً%2C%20أريد%20الاشتراك%20بخطة%20Nextra%20AI%20المميزة%20(2.99%24%2Fشهرياً)" target="_blank" rel="noopener">
+      📱 تواصل مع عتيق — واتساب
+    </a>
+    <a class="outline-btn pricing-wa-btn" href="https://wa.me/491787558762?text=مرحباً%2C%20أريد%20الاشتراك%20بخطة%20Nextra%20AI%20المميزة%20(2.99%24%2Fشهرياً)" target="_blank" rel="noopener">
+      📱 تواصل مع عبدالمجيد — واتساب
+    </a>
+    <div class="pricing-modal-note">بعد إتمام الدفع، اشتراكك يُفعّل خلال 24 ساعة كحد أقصى.</div>
+  </div>
+</div>
+
+<footer class="footer">
+  <img class="brand__logo" src="nextra-logo.png" alt="Nextra AI" />
+  <div class="footer__links">
+    <a href="#" id="footerAboutLink">حول Nextra AI</a>
+    <a href="https://wa.me/967779339333" target="_blank" rel="noopener" id="footerContactLink">تواصل معنا</a>
+  </div>
+  <span id="footerNote">Nextra AI · مساعد ذكاء اصطناعي مجاني</span>
+</footer>
+
+<div class="mobile-bottom-nav" id="mobileBottomNav">
+  <button class="mobile-bottom-nav__active" data-nav="home" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+    <small>الرئيسية</small>
+  </button>
+  <button data-nav="chats">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    <small>المحادثات</small>
+  </button>
+  <button data-nav="discover">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+    <small>اكتشف</small>
+  </button>
+  <button data-nav="account">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <small>الحساب</small>
+  </button>
+</div>
+
+<div class="about-overlay" id="aboutOverlay">
+  <div class="about-modal">
+    <button class="about-close" id="aboutClose" aria-label="Close">✕</button>
+    <img src="nextra-mark.png" alt="Nextra AI logo" style="width:56px;height:auto;margin:0 auto 12px;display:block;" />
+    <div class="about-credit">بكل فخر، تم التطوير بواسطة الخبير التقني: عتيق الجذوة وعبدالمجيد الجهمي</div>
+    <div class="about-contacts">
+      <a href="https://wa.me/967779339333" target="_blank" rel="noopener">📱 عتيق — واتساب <span dir="ltr">967 779 339 333+</span></a>
+      <a href="https://wa.me/491787558762" target="_blank" rel="noopener">📱 عبدالمجيد — واتساب <span dir="ltr">49 178 7558762+</span></a>
+    </div>
+    <div class="about-rights">جميع الحقوق محفوظة © 2026</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'nextra_chat_history_v1';
+  const LANG_KEY = 'nextra_lang';
+  const THEME_KEY = 'nextra_theme';
+  const THEMES = ['night', 'gold', 'light'];
+  const THEME_NAMES = {
+    ar: { night: 'ليلي', gold: 'غابي', light: 'فاتح' },
+    en: { night: 'Night', gold: 'Forest', light: 'Light' }
+  };
+
+  const STRINGS = {
+    ar: {
+      dir: 'rtl', htmlLang: 'ar',
+      tagline: 'مساعد ذكاء اصطناعي مجاني',
+      sidebarTitle: 'المحادثات',
+      newChat: 'محادثة جديدة',
+      untitledChat: 'محادثة بدون عنوان',
+      deleteChat: 'حذف المحادثة',
+      confirmDeleteChat: 'حذف هذي المحادثة نهائياً؟',
+      langBtn: 'EN',
+      emptyTitle: 'أهلاً، كيف أقدر أساعدك؟',
+      emptySub: 'اسأليني أي شيء بالعربي أو الإنجليزي — أنا هنا للمساعدة.',
+      placeholder: 'اكتب رسالتك هنا…',
+      imagePlaceholder: 'صف الصورة اللي تبيها…',
+      disclaimer: 'قد يُخطئ Nextra AI أحياناً — تحققي من المعلومات المهمة',
+      chips: ['لخّص لي فكرة بسيطة', 'اقترح خطة يومي', 'ساعدني بكتابة رسالة', 'اشرح لي مفهوم معقّد'],
+      imageToggleTitle: 'إنشاء صورة',
+      modeBannerText: 'وضع إنشاء الصور مفعّل — صف الصورة اللي تبيها',
+      generating: 'جارِ رسم الصورة…',
+      imageFailed: 'تعذّر إنشاء الصورة',
+      retry: 'إعادة المحاولة',
+      download: 'تحميل',
+      errorGeneric: 'صار خطأ، حاول مرة ثانية.',
+      errorBusy: 'الخدمة مزدحمة حالياً، حاول بعد دقيقة.',
+      errorTimeout: 'الرد تأخر كثير — كل النماذج مزدحمة حالياً. حاول مرة ثانية بعد شوي.',
+      confirmClear: 'مسح كل المحادثة؟',
+      copy: 'نسخ',
+      copied: 'تم النسخ',
+      share: 'مشاركة',
+      like: 'إعجاب',
+      liked: 'شكراً على تقييمك 🌸',
+      report: 'إبلاغ عن مشكلة',
+      reportPrefix: 'أبلغ عن ملاحظة بخصوص Nextra AI 🌸\n\nالرد:\n"',
+      reportSuffix: '"\n\nملاحظتي: ',
+      listen: 'استماع',
+      stopListen: 'إيقاف',
+      micTitle: 'تسجيل صوتي',
+      micDenied: 'الرجاء السماح باستخدام الميكروفون من إعدادات المتصفح',
+      micNotSupported: 'التسجيل الصوتي غير مدعوم بهذا المتصفح',
+      transcribeFailed: 'تعذّر تحويل الصوت لنص، حاول مرة ثانية',
+      recording: 'جارِ التسجيل… اضغط للإيقاف'
+    },
+    en: {
+      dir: 'ltr', htmlLang: 'en',
+      tagline: 'Free multilingual AI assistant',
+      sidebarTitle: 'Conversations',
+      newChat: 'New chat',
+      untitledChat: 'Untitled chat',
+      deleteChat: 'Delete chat',
+      confirmDeleteChat: 'Delete this conversation permanently?',
+      langBtn: 'AR',
+      emptyTitle: 'Hi, how can I help?',
+      emptySub: "Ask me anything in Arabic or English — I'm here to help.",
+      placeholder: 'Type your message…',
+      imagePlaceholder: 'Describe the image you want…',
+      disclaimer: 'Nextra AI can make mistakes — check important info',
+      chips: ['Summarize an idea', 'Plan my day', 'Help me write a message', 'Explain a hard concept'],
+      imageToggleTitle: 'Create image',
+      modeBannerText: 'Image mode is on — describe the image you want',
+      generating: 'Painting your image…',
+      imageFailed: 'Could not create the image',
+      retry: 'Retry',
+      download: 'Download',
+      errorGeneric: 'Something went wrong, please try again.',
+      errorBusy: 'Service is busy right now, try again in a minute.',
+      errorTimeout: 'The response took too long — all models are busy right now. Please try again shortly.',
+      confirmClear: 'Clear the whole conversation?',
+      copy: 'Copy',
+      copied: 'Copied',
+      share: 'Share',
+      like: 'Like',
+      liked: 'Thanks for the feedback 🌸',
+      report: 'Report an issue',
+      reportPrefix: 'Feedback about Nextra AI 🌸\n\nReply:\n"',
+      reportSuffix: '"\n\nMy note: ',
+      listen: 'Listen',
+      stopListen: 'Stop',
+      micTitle: 'Voice input',
+      micDenied: 'Please allow microphone access in your browser settings',
+      micNotSupported: 'Voice recording is not supported on this browser',
+      transcribeFailed: 'Could not transcribe audio, please try again',
+      recording: 'Recording… tap to stop'
+    }
+  };
+
+  const DEVELOPER_WHATSAPP = '967779339333';
+
+  function escapeHtml(str){
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function inlineFormat(str){
+    return str
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`([^`]+?)`/g, '<code>$1</code>');
+  }
+
+  // تحويل نص بسيط (Markdown خفيف) إلى HTML منظم: فقرات، نص عريض، قوائم نقطية ومرقّمة، وكتل أكواد حقيقية
+  function renderMarkdownLite(text){
+    const raw = text;
+    // نفصل كتل الأكواد (```...```) أول شي عشان ما نكسرها أو نهرب محتواها بالخطأ
+    const parts = [];
+    const codeBlockRe = /```([a-zA-Z0-9_+-]*)\n?([\s\S]*?)```/g;
+    let lastIndex = 0, m;
+    while ((m = codeBlockRe.exec(raw)) !== null) {
+      if (m.index > lastIndex) parts.push({ type: 'text', content: raw.slice(lastIndex, m.index) });
+      parts.push({ type: 'code', lang: m[1] || '', content: m[2].replace(/\n$/, '') });
+      lastIndex = codeBlockRe.lastIndex;
+    }
+    if (lastIndex < raw.length) parts.push({ type: 'text', content: raw.slice(lastIndex) });
+
+    return parts.map(part => {
+      if (part.type === 'code') {
+        return '<pre><code>' + escapeHtml(part.content) + '</code></pre>';
+      }
+      const escaped = escapeHtml(part.content);
+      const blocks = escaped.split(/\n\s*\n/);
+      return blocks.map(block => {
+        const lines = block.split('\n').filter(l => l.trim() !== '');
+        if (!lines.length) return '';
+        const isBullet = lines.every(l => /^\s*[-*•]\s+/.test(l));
+        const isNumbered = lines.every(l => /^\s*\d+[.)]\s+/.test(l));
+        if (isBullet){
+          return '<ul>' + lines.map(l => '<li>' + inlineFormat(l.replace(/^\s*[-*•]\s+/, '')) + '</li>').join('') + '</ul>';
+        }
+        if (isNumbered){
+          return '<ol>' + lines.map(l => '<li>' + inlineFormat(l.replace(/^\s*\d+[.)]\s+/, '')) + '</li>').join('') + '</ol>';
+        }
+        return '<p>' + lines.map(inlineFormat).join('<br>') + '</p>';
+      }).join('');
+    }).join('');
+  }
+
+  function pollinationsUrl(prompt, seed){
+    const base = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt);
+    const params = new URLSearchParams({ width: '1024', height: '1024', nologo: 'true', seed: String(seed) });
+    return base + '?' + params.toString();
+  }
+
+  let lang = localStorage.getItem(LANG_KEY) || 'ar';
+  let imageMode = false;
+  let specialization = localStorage.getItem('nextra_spec') || 'general';
+
+  function getDeviceId(){
+    let id = localStorage.getItem('nextra_device_id');
+    if (!id){
+      id = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 12);
+      localStorage.setItem('nextra_device_id', id);
+    }
+    return id;
+  }
+  const deviceId = getDeviceId();
+
+  // ===== نظام المحادثات المتعددة (زي ChatGPT): كل محادثة عندها id مستقل وتُحفظ لحالها =====
+  const CONV_KEY = 'nextra_conversations_v1';
+  const ACTIVE_KEY = 'nextra_active_conv_v1';
+
+  function loadConversations(){
+    try { return JSON.parse(localStorage.getItem(CONV_KEY)) || []; } catch(e){ return []; }
+  }
+  function saveConversations(list){
+    try { localStorage.setItem(CONV_KEY, JSON.stringify(list)); } catch(e){}
+  }
+
+  let conversations = loadConversations();
+
+  // ترحيل تلقائي: لو المستخدم عنده محادثة قديمة بالنظام السابق (قبل ميزة المحادثات المتعددة)، نحوّلها لأول محادثة
+  if (!conversations.length) {
+    let oldHistory = [];
+    try { oldHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e){}
+    if (oldHistory.length) {
+      conversations.push({ id: 'conv_' + Date.now(), title: null, messages: oldHistory, updatedAt: Date.now() });
+      saveConversations(conversations);
+    }
+  }
+
+  let activeConvId = localStorage.getItem(ACTIVE_KEY);
+  if (!activeConvId || !conversations.find(c => c.id === activeConvId)) {
+    if (!conversations.length) {
+      conversations.push({ id: 'conv_' + Date.now(), title: null, messages: [], updatedAt: Date.now() });
+      saveConversations(conversations);
+    }
+    activeConvId = conversations[conversations.length - 1].id;
+    localStorage.setItem(ACTIVE_KEY, activeConvId);
+  }
+
+  let history = (conversations.find(c => c.id === activeConvId) || {}).messages || [];
+
+  const $ = (id) => document.getElementById(id);
+  const body = document.body;
+  const messagesEl = $('messages');
+  const mainEl = $('main');
+
+  function scrollChatToBottom(){
+    // نحرك صندوق الرسائل نفسه (مو الصفحة كاملة) — لأن الشات الآن بطاقة محدودة الحجم
+    mainEl.scrollTop = mainEl.scrollHeight;
+  }
+  const emptyState = $('emptyState');
+  const input = $('input');
+  const sendBtn = $('sendBtn');
+  const errorBanner = $('errorBanner');
+  const imageToggle = $('imageToggle');
+  const modeBanner = $('modeBanner');
+  const micBtn = $('micBtn');
+  const aboutBtn = $('aboutBtn');
+  const themeBtn = $('themeBtn');
+  let currentTheme = localStorage.getItem(THEME_KEY) || 'night';
+  const aboutOverlay = $('aboutOverlay');
+  const aboutClose = $('aboutClose');
+  let mediaRecorder = null;
+  let audioChunks = [];
+  let isRecording = false;
+
+  function applyLang(){
+    const s = STRINGS[lang];
+    document.documentElement.lang = s.htmlLang;
+    document.documentElement.dir = s.dir;
+    body.classList.toggle('lang-en', lang === 'en');
+    $('sidebarTitle').textContent = s.sidebarTitle;
+    $('sidebarNewText').textContent = s.newChat;
+    $('langBtn').textContent = s.langBtn;
+    $('emptyTitle').textContent = s.emptyTitle;
+    $('emptySub').textContent = s.emptySub;
+    input.placeholder = imageMode ? s.imagePlaceholder : s.placeholder;
+    $('disclaimer').textContent = s.disclaimer;
+    imageToggle.title = s.imageToggleTitle;
+    micBtn.title = s.micTitle;
+    const specLabels = lang === 'ar'
+      ? { general: 'عام', coding: 'برمجة', analysis: 'تحليل' }
+      : { general: 'General', coding: 'Code', analysis: 'Analysis' };
+    document.querySelectorAll('.spec-chip').forEach((b) => {
+      const label = b.querySelector('.spec-label');
+      if (label) label.textContent = specLabels[b.dataset.spec];
+    });
+    if (typeof currentTheme !== 'undefined' && themeBtn){
+      themeBtn.title = THEME_NAMES[lang][currentTheme];
+      themeBtn.setAttribute('aria-label', THEME_NAMES[lang][currentTheme]);
+    }
+    micBtn.setAttribute('aria-label', s.micTitle);
+    $('modeBannerText').textContent = s.modeBannerText;
+    const sugg = $('suggestions');
+    sugg.innerHTML = '';
+    s.chips.forEach(c => {
+      const b = document.createElement('button');
+      b.className = 'chip';
+      b.textContent = c;
+      b.onclick = () => { input.value = c; input.focus(); autoGrow(); };
+      sugg.appendChild(b);
+    });
+  }
+
+  function autoGrow(){
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 140) + 'px';
+  }
+
+  function renderMessages(){
+    messagesEl.innerHTML = '';
+    emptyState.style.display = history.length ? 'none' : 'flex';
+    history.forEach(m => {
+      if (m.type === 'image') {
+        if (m.premium && !m.url) {
+          appendBubble(m.role, '🖼️ (صورة جودة عالية سابقة — ما تُحفظ بين الجلسات) ' + m.prompt, false);
+        } else {
+          appendImageBubble(m.role, m.prompt, m.url, false);
+        }
+      }
+      else if (Array.isArray(m.content)) {
+        const textPart = m.content.find(c => c.type === 'text')?.text || '';
+        const imgPart = m.content.find(c => c.type === 'image_url')?.image_url?.url || null;
+        appendBubble(m.role, textPart, false, imgPart);
+      }
+      else appendBubble(m.role, m.content, false);
+    });
+    scrollChatToBottom();
+  }
+
+  function appendBubble(role, content, scroll, imageDataUrl){
+    emptyState.style.display = 'none';
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + role;
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    if (role === 'assistant'){
+      bubble.innerHTML = renderMarkdownLite(content);
+    } else {
+      if (imageDataUrl){
+        const img = document.createElement('img');
+        img.className = 'user-img';
+        img.src = imageDataUrl;
+        img.alt = 'uploaded';
+        bubble.appendChild(img);
+      }
+      if (content){
+        const p = document.createElement('p');
+        p.textContent = content;
+        bubble.appendChild(p);
+      }
+    }
+    wrap.appendChild(bubble);
+    if (role === 'assistant'){
+      wrap.appendChild(buildMessageActions(content));
+    }
+    messagesEl.appendChild(wrap);
+    if (scroll !== false) scrollChatToBottom();
+    return bubble;
+  }
+
+  function buildMessageActions(rawText){
+    const s = STRINGS[lang];
+    const bar = document.createElement('div');
+    bar.className = 'msg-actions';
+
+    // نسخ
+    const copyBtn = document.createElement('button');
+    copyBtn.title = s.copy;
+    copyBtn.setAttribute('aria-label', s.copy);
+    copyBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard?.writeText(rawText).then(() => {
+        const tag = document.createElement('span');
+        tag.className = 'copied-tag';
+        tag.textContent = s.copied;
+        bar.appendChild(tag);
+        setTimeout(() => tag.remove(), 1600);
+      });
+    });
+    bar.appendChild(copyBtn);
+
+    // استماع (نطق الرد)
+    if ('speechSynthesis' in window){
+      const speakBtn = document.createElement('button');
+      speakBtn.title = s.listen;
+      speakBtn.setAttribute('aria-label', s.listen);
+      speakBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>';
+      speakBtn.addEventListener('click', () => {
+        if (speakBtn.classList.contains('active-speak')){
+          window.speechSynthesis.cancel();
+          speakBtn.classList.remove('active-speak');
+          return;
+        }
+        document.querySelectorAll('.msg-actions button.active-speak').forEach(b => b.classList.remove('active-speak'));
+        window.speechSynthesis.cancel();
+        const plain = rawText.replace(/\*\*/g, '').replace(/[#*_`]/g, '');
+        const utter = new SpeechSynthesisUtterance(plain);
+        const isArabic = /[\u0600-\u06FF]/.test(plain);
+        utter.lang = isArabic ? 'ar-SA' : 'en-US';
+        const voices = window.speechSynthesis.getVoices();
+        const match = voices.find(v => v.lang && v.lang.toLowerCase().startsWith(isArabic ? 'ar' : 'en'));
+        if (match) utter.voice = match;
+        utter.onend = () => speakBtn.classList.remove('active-speak');
+        utter.onerror = () => speakBtn.classList.remove('active-speak');
+        speakBtn.classList.add('active-speak');
+        window.speechSynthesis.speak(utter);
+      });
+      bar.appendChild(speakBtn);
+    }
+
+    // مشاركة
+    const shareBtn = document.createElement('button');
+    shareBtn.title = s.share;
+    shareBtn.setAttribute('aria-label', s.share);
+    shareBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>';
+    shareBtn.addEventListener('click', async () => {
+      if (navigator.share){
+        try { await navigator.share({ text: rawText, title: 'Nextra AI نكسترا' }); } catch(e){}
+      } else {
+        navigator.clipboard?.writeText(rawText);
+      }
+    });
+    bar.appendChild(shareBtn);
+
+    // إعجاب
+    const likeBtn = document.createElement('button');
+    likeBtn.title = s.like;
+    likeBtn.setAttribute('aria-label', s.like);
+    likeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>';
+    likeBtn.addEventListener('click', () => {
+      const wasActive = likeBtn.classList.contains('active-like');
+      likeBtn.classList.toggle('active-like');
+      if (!wasActive){
+        const tag = document.createElement('span');
+        tag.className = 'copied-tag';
+        tag.textContent = s.liked;
+        bar.appendChild(tag);
+        setTimeout(() => tag.remove(), 1800);
+      }
+    });
+    bar.appendChild(likeBtn);
+
+    // إبلاغ عن مشكلة (واتساب)
+    const reportLink = document.createElement('a');
+    reportLink.title = s.report;
+    reportLink.setAttribute('aria-label', s.report);
+    reportLink.target = '_blank';
+    reportLink.rel = 'noopener';
+    const trimmed = rawText.length > 300 ? rawText.slice(0, 300) + '…' : rawText;
+    reportLink.href = 'https://wa.me/' + DEVELOPER_WHATSAPP + '?text=' + encodeURIComponent(s.reportPrefix + trimmed + s.reportSuffix);
+    reportLink.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+    bar.appendChild(reportLink);
+
+    return bar;
+  }
+
+  function appendImageBubble(role, prompt, url, scroll){
+    emptyState.style.display = 'none';
+    const s = STRINGS[lang];
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + role;
+
+    const card = document.createElement('div');
+    card.className = 'image-card';
+
+    const frame = document.createElement('div');
+    frame.className = 'frame';
+
+    const img = document.createElement('img');
+    img.alt = prompt || '';
+    img.loading = 'lazy';
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    const promptText = document.createElement('div');
+    promptText.className = 'prompt-text';
+    promptText.textContent = prompt || '';
+    const dlBtn = document.createElement('a');
+    dlBtn.className = 'dl-btn';
+    dlBtn.title = s.download;
+    dlBtn.target = '_blank';
+    dlBtn.rel = 'noopener';
+    dlBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+    meta.appendChild(promptText);
+    meta.appendChild(dlBtn);
+
+    function attemptLoad(){
+      frame.classList.remove('loaded');
+      const errEl = frame.querySelector('.err-state');
+      if (errEl) errEl.remove();
+      img.classList.remove('loaded');
+      img.src = url;
+      dlBtn.href = url;
+      dlBtn.download = 'nextra-ai-' + Date.now() + '.png';
+    }
+
+    img.onload = () => {
+      frame.classList.add('loaded');
+      img.classList.add('loaded');
+      scrollChatToBottom();
+    };
+    img.onerror = () => {
+      frame.classList.add('loaded');
+      const errEl = document.createElement('div');
+      errEl.className = 'err-state';
+      errEl.innerHTML = '<span>' + s.imageFailed + '</span>';
+      const retryBtn = document.createElement('button');
+      retryBtn.className = 'retry-btn';
+      retryBtn.textContent = s.retry;
+      retryBtn.onclick = attemptLoad;
+      errEl.appendChild(retryBtn);
+      frame.appendChild(errEl);
+    };
+
+    frame.appendChild(img);
+    card.appendChild(frame);
+    card.appendChild(meta);
+    wrap.appendChild(card);
+    if (role === 'assistant'){
+      wrap.appendChild(buildMessageActions(prompt || ''));
+    }
+    messagesEl.appendChild(wrap);
+
+    attemptLoad();
+    if (scroll !== false) scrollChatToBottom();
+    return card;
+  }
+
+  function appendGeneratingBubble(){
+    const s = STRINGS[lang];
+    const wrap = document.createElement('div');
+    wrap.className = 'msg assistant';
+    wrap.id = 'generatingIndicator';
+    const card = document.createElement('div');
+    card.className = 'image-card';
+    card.innerHTML = '<div class="frame"></div><div class="meta"><div class="prompt-text">' + s.generating + '</div></div>';
+    wrap.appendChild(card);
+    messagesEl.appendChild(wrap);
+    scrollChatToBottom();
+  }
+  function removeGeneratingBubble(){
+    const t = $('generatingIndicator');
+    if (t) t.remove();
+  }
+
+  function showTyping(){
+    const wrap = document.createElement('div');
+    wrap.className = 'msg assistant';
+    wrap.id = 'typingIndicator';
+    wrap.innerHTML = '<div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>';
+    messagesEl.appendChild(wrap);
+    scrollChatToBottom();
+  }
+  function hideTyping(){
+    const t = $('typingIndicator');
+    if (t) t.remove();
+  }
+
+  function showError(msg){
+    errorBanner.innerHTML = '<div class="error-banner">' + msg + '</div>';
+    setTimeout(() => { errorBanner.innerHTML = ''; }, 6000);
+  }
+
+  function persist(){
+    try {
+      // نحفظ نسخة "خفيفة" من المحادثة بدون بيانات الصور base64 الثقيلة (تفادي امتلاء localStorage)
+      const lightweight = history.map(m => {
+        if (Array.isArray(m.content)) {
+          const textPart = m.content.find(c => c.type === 'text')?.text || '';
+          const hasImg = m.content.some(c => c.type === 'image_url');
+          return { role: m.role, content: hasImg ? (textPart + '\n[📷 صورة مرفوعة]') : textPart };
+        }
+        return m;
+      });
+      const conv = conversations.find(c => c.id === activeConvId);
+      if (conv) {
+        conv.messages = lightweight;
+        conv.updatedAt = Date.now();
+        if (!conv.title) {
+          const firstUser = lightweight.find(m => m.role === 'user' && m.content);
+          if (firstUser) conv.title = String(firstUser.content).replace(/\n\[📷.*?\]/, '').trim().slice(0, 42) || null;
+        }
+        saveConversations(conversations);
+      }
+    } catch (e) {
+      // لو امتلأت المساحة (نادر)، تجاهل الحفظ بصمت بدل ما نكسر المحادثة الحالية
+    }
+  }
+
+  // ===== إدارة المحادثات: جديدة / تبديل / حذف / عرض القائمة =====
+  function resetInputModes(){
+    clearAttachedImage();
+    imageMode = false;
+    imageToggle.classList.remove('active');
+    modeBanner.classList.remove('show');
+    if (typeof qualityBar !== 'undefined') qualityBar.classList.remove('show');
+    if (typeof qualityNote !== 'undefined') qualityNote.classList.remove('show');
+    input.placeholder = STRINGS[lang].placeholder;
+  }
+
+  function newConversation(){
+    const conv = { id: 'conv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7), title: null, messages: [], updatedAt: Date.now() };
+    conversations.push(conv);
+    saveConversations(conversations);
+    activeConvId = conv.id;
+    localStorage.setItem(ACTIVE_KEY, activeConvId);
+    history = [];
+    resetInputModes();
+    renderMessages();
+    closeSidebar();
+  }
+
+  function switchConversation(id){
+    const conv = conversations.find(c => c.id === id);
+    if (!conv || id === activeConvId) { closeSidebar(); return; }
+    activeConvId = id;
+    localStorage.setItem(ACTIVE_KEY, id);
+    history = conv.messages || [];
+    resetInputModes();
+    renderMessages();
+    closeSidebar();
+  }
+
+  function deleteConversation(id, e){
+    if (e) e.stopPropagation();
+    if (!confirm(STRINGS[lang].confirmDeleteChat)) return;
+    conversations = conversations.filter(c => c.id !== id);
+    saveConversations(conversations);
+    if (id === activeConvId) {
+      if (conversations.length) {
+        switchConversation([...conversations].sort((a, b) => b.updatedAt - a.updatedAt)[0].id);
+      } else {
+        newConversation();
+      }
+    } else {
+      renderSidebar();
+    }
+  }
+
+  function renderSidebar(){
+    const list = $('sidebarList');
+    list.innerHTML = '';
+    const sorted = [...conversations].sort((a, b) => b.updatedAt - a.updatedAt);
+    sorted.forEach((conv) => {
+      const item = document.createElement('div');
+      item.className = 'sidebar-item' + (conv.id === activeConvId ? ' active' : '');
+      const titleSpan = document.createElement('span');
+      titleSpan.className = 'title';
+      titleSpan.textContent = conv.title || STRINGS[lang].untitledChat;
+      item.appendChild(titleSpan);
+      const delBtn = document.createElement('button');
+      delBtn.className = 'del';
+      delBtn.textContent = '✕';
+      delBtn.title = STRINGS[lang].deleteChat;
+      delBtn.addEventListener('click', (e) => deleteConversation(conv.id, e));
+      item.appendChild(delBtn);
+      item.addEventListener('click', () => switchConversation(conv.id));
+      list.appendChild(item);
+    });
+  }
+
+  function openSidebar(){ renderSidebar(); $('sidebarOverlay').classList.add('show'); }
+  function closeSidebar(){ $('sidebarOverlay').classList.remove('show'); }
+
+  function pushImageResult(prompt, readyUrl){
+    const url = readyUrl || pollinationsUrl(prompt, Math.floor(Math.random() * 1000000));
+    // صور Gemini (base64) ثقيلة جداً لـ localStorage — نحفظها بالجلسة الحالية بس، بدون تخزين دائم
+    const isDataUrl = url.startsWith('data:');
+    history.push({ role: 'assistant', type: 'image', prompt, url: isDataUrl ? null : url, premium: isDataUrl });
+    persist();
+    removeGeneratingBubble();
+    appendImageBubble('assistant', prompt, url);
+  }
+
+  function appendSuggestionChips(suggestions){
+    const wrap = document.createElement('div');
+    wrap.className = 'suggestion-chips';
+    suggestions.forEach((sugg) => {
+      const chip = document.createElement('button');
+      chip.className = 'sugg-chip';
+      chip.textContent = sugg;
+      chip.addEventListener('click', () => {
+        if (sendBtn.disabled) return;
+        input.value = sugg;
+        send();
+      });
+      wrap.appendChild(chip);
+    });
+    messagesEl.appendChild(wrap);
+    scrollChatToBottom();
+  }
+
+  let attachedImage = null; // { dataUrl, name }
+
+  async function send(){
+    const text = input.value.trim();
+    if (!text && !attachedImage) return;
+    input.value = '';
+    autoGrow();
+    sendBtn.disabled = true;
+
+    const wasImageMode = imageMode;
+    const pendingImage = attachedImage;
+    clearAttachedImage();
+
+    let userMsgForApi;
+    if (pendingImage) {
+      userMsgForApi = {
+        role: 'user',
+        content: [
+          { type: 'text', text: text || (lang === 'ar' ? 'صف هذه الصورة' : 'Describe this image') },
+          { type: 'image_url', image_url: { url: pendingImage.dataUrl } },
+        ],
+      };
+    } else {
+      userMsgForApi = { role: 'user', content: text };
+    }
+
+    history.push(userMsgForApi);
+    persist();
+    appendBubble('user', text, true, pendingImage ? pendingImage.dataUrl : null);
+
+    if (wasImageMode) appendGeneratingBubble();
+    else showTyping();
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 58000);
+      let res;
+      try {
+        res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: history, mode: wasImageMode ? 'image' : 'chat', specialization, deviceId, imageQuality: wasImageMode ? imageQuality : undefined }),
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
+      const data = await res.json();
+
+      if (!res.ok) {
+        hideTyping();
+        removeGeneratingBubble();
+        showError(res.status === 429 ? STRINGS[lang].errorBusy : (data.error || STRINGS[lang].errorGeneric));
+        sendBtn.disabled = false;
+        return;
+      }
+
+      if (data.type === 'image') {
+        hideTyping();
+        pushImageResult(data.prompt, data.imageData || null);
+      } else {
+        hideTyping();
+        removeGeneratingBubble();
+        history.push({ role: 'assistant', content: data.reply });
+        persist();
+        appendBubble('assistant', data.reply);
+        if (Array.isArray(data.suggestions) && data.suggestions.length) {
+          appendSuggestionChips(data.suggestions);
+        }
+      }
+    } catch (err) {
+      hideTyping();
+      removeGeneratingBubble();
+      showError(err.name === 'AbortError' ? STRINGS[lang].errorTimeout : STRINGS[lang].errorGeneric);
+    }
+    sendBtn.disabled = false;
+    input.focus();
+  }
+
+  sendBtn.addEventListener('click', send);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      send();
+    }
+  });
+  input.addEventListener('input', autoGrow);
+
+  $('langBtn').addEventListener('click', () => {
+    lang = lang === 'ar' ? 'en' : 'ar';
+    localStorage.setItem(LANG_KEY, lang);
+    applyLang();
+  });
+
+  let imageQuality = 'free';
+  const qualityBar = $('qualityBar');
+  const qualityNote = $('qualityNote');
+
+  imageToggle.addEventListener('click', () => {
+    imageMode = !imageMode;
+    imageToggle.classList.toggle('active', imageMode);
+    modeBanner.classList.toggle('show', imageMode);
+    qualityBar.classList.toggle('show', imageMode);
+    if (imageMode) qualityNote.classList.toggle('show', imageQuality === 'premium');
+    else qualityNote.classList.remove('show');
+    input.placeholder = imageMode ? STRINGS[lang].imagePlaceholder : STRINGS[lang].placeholder;
+    input.focus();
+  });
+
+  document.querySelectorAll('.quality-chip').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      imageQuality = btn.dataset.quality;
+      document.querySelectorAll('.quality-chip').forEach((b) => b.classList.toggle('active', b === btn));
+      qualityNote.classList.toggle('show', imageQuality === 'premium');
+    });
+  });
+
+  // ===== رفع صورة (Vision) =====
+  const attachBtn = $('attachBtn');
+  const fileInput = $('fileInput');
+  const imagePreviewBar = $('imagePreviewBar');
+  const imagePreviewThumb = $('imagePreviewThumb');
+  const imagePreviewName = $('imagePreviewName');
+
+  function clearAttachedImage(){
+    attachedImage = null;
+    fileInput.value = '';
+    imagePreviewBar.classList.remove('show');
+    attachBtn.classList.remove('active');
+  }
+
+  attachBtn.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showError(lang === 'ar' ? 'الرجاء اختيار ملف صورة' : 'Please select an image file');
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      showError(lang === 'ar' ? 'حجم الصورة كبير جداً (الحد 8MB)' : 'Image too large (8MB max)');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      attachedImage = { dataUrl: reader.result, name: file.name };
+      imagePreviewThumb.src = reader.result;
+      imagePreviewName.textContent = file.name;
+      imagePreviewBar.classList.add('show');
+      attachBtn.classList.add('active');
+      input.focus();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  $('imagePreviewRemove').addEventListener('click', clearAttachedImage);
+
+  document.querySelectorAll('.spec-chip').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      specialization = btn.dataset.spec;
+      localStorage.setItem('nextra_spec', specialization);
+      document.querySelectorAll('.spec-chip').forEach((b) => b.classList.toggle('active', b === btn));
+    });
+  });
+  document.querySelectorAll('.spec-chip').forEach((b) => {
+    b.classList.toggle('active', b.dataset.spec === specialization);
+  });
+
+  // ===== تسجيل صوتي وتحويله لنص =====
+  function pickMimeType(){
+    const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
+    for (const c of candidates){
+      if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(c)) return c;
+    }
+    return '';
+  }
+
+  async function startRecording(){
+    const s = STRINGS[lang];
+    if (!navigator.mediaDevices || !window.MediaRecorder){
+      showError(s.micNotSupported);
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = pickMimeType();
+      mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
+      mediaRecorder.onstop = () => {
+        stream.getTracks().forEach(t => t.stop());
+        handleRecordedAudio(mediaRecorder.mimeType || mimeType || 'audio/webm');
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      micBtn.classList.add('recording');
+      input.placeholder = s.recording;
+    } catch (err) {
+      showError(s.micDenied);
+    }
+  }
+
+  function stopRecording(){
+    if (mediaRecorder && isRecording){
+      mediaRecorder.stop();
+      isRecording = false;
+      micBtn.classList.remove('recording');
+    }
+  }
+
+  function handleRecordedAudio(mimeType){
+    const s = STRINGS[lang];
+    if (!audioChunks.length){
+      input.placeholder = imageMode ? s.imagePlaceholder : s.placeholder;
+      return;
+    }
+    const blob = new Blob(audioChunks, { type: mimeType });
+    micBtn.classList.add('transcribing');
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64 = String(reader.result).split(',')[1] || '';
+      try {
+        const res = await fetch('/api/transcribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ audio: base64, mimeType })
+        });
+        const data = await res.json();
+        micBtn.classList.remove('transcribing');
+        input.placeholder = imageMode ? s.imagePlaceholder : s.placeholder;
+        if (!res.ok || !data.text){
+          showError(s.transcribeFailed);
+          return;
+        }
+        input.value = (input.value ? input.value + ' ' : '') + data.text;
+        autoGrow();
+        input.focus();
+      } catch (err) {
+        micBtn.classList.remove('transcribing');
+        input.placeholder = imageMode ? s.imagePlaceholder : s.placeholder;
+        showError(s.transcribeFailed);
+      }
+    };
+    reader.readAsDataURL(blob);
+  }
+
+  micBtn.addEventListener('click', () => {
+    if (isRecording) stopRecording();
+    else startRecording();
+  });
+
+  aboutBtn.addEventListener('click', () => aboutOverlay.classList.add('show'));
+
+  $('historyBtn').addEventListener('click', openSidebar);
+  $('newChatBtn').addEventListener('click', newConversation);
+  $('sidebarNewBtn').addEventListener('click', newConversation);
+  $('sidebarClose').addEventListener('click', closeSidebar);
+  $('sidebarOverlay').addEventListener('click', (e) => {
+    if (e.target.id === 'sidebarOverlay') closeSidebar();
+  });
+
+  // ===== عناصر الصفحة التسويقية الجديدة: قائمة الجوال، أزرار CTA، التنقل السفلي =====
+  function scrollToChat(){
+    $('home').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => input.focus(), 400);
+  }
+
+  const mobileMenu = $('mobileMenu');
+  $('mobileMenuBtn').addEventListener('click', () => {
+    mobileMenu.classList.toggle('show');
+  });
+  mobileMenu.querySelectorAll('a').forEach((a) => {
+    a.addEventListener('click', () => mobileMenu.classList.remove('show'));
+  });
+
+  ['ctaTopBtn', 'ctaHeroBtn', 'ctaMobileBtn', 'ctaBottomBtn'].forEach((id) => {
+    const el = $(id);
+    if (el) el.addEventListener('click', () => {
+      mobileMenu.classList.remove('show');
+      scrollToChat();
+    });
+  });
+
+  // ===== تسجيل الدخول (Firebase Authentication) =====
+  // ⚠️ عشان يشتغل: أنشئ مشروع مجاني على https://console.firebase.google.com
+  // فعّل Authentication > Sign-in method > Google (و Phone لو تبي، يحتاج خطة Blaze)
+  // انسخ القيم من Project Settings > عام > "Web app" وحطها هنا بدل القيم الفارغة:
+  const firebaseConfig = {
+    apiKey: "",
+    authDomain: "",
+    projectId: "",
+    storageBucket: "",
+    messagingSenderId: "",
+    appId: "",
+  };
+
+  const firebaseReady = !!firebaseConfig.apiKey;
+  let currentUser = null;
+
+  if (firebaseReady && typeof firebase !== 'undefined') {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  const authOverlay = $('authOverlay');
+  const authError = $('authError');
+
+  function openAuthModal(){
+    authError.textContent = '';
+    if (!firebaseReady) {
+      authError.textContent = lang === 'ar'
+        ? '⚠️ تسجيل الدخول ما اتفعّل بعد من صاحب الموقع — يحتاج ربط مشروع Firebase أولاً (راجع README). الأزرار معطّلة مؤقتاً.'
+        : "⚠️ Login isn't connected yet by the site owner — a Firebase project needs to be linked first. Buttons are temporarily disabled.";
+      $('googleSignInBtn').disabled = true;
+      $('sendOtpBtn').disabled = true;
+      $('phoneInput').disabled = true;
+    }
+    authOverlay.classList.add('show');
+  }
+  function closeAuthModal(){ authOverlay.classList.remove('show'); }
+
+  $('authClose').addEventListener('click', closeAuthModal);
+  authOverlay.addEventListener('click', (e) => { if (e.target.id === 'authOverlay') closeAuthModal(); });
+
+  $('googleSignInBtn').addEventListener('click', () => {
+    if (!firebaseReady) return;
+    const provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(provider)
+      .then(() => closeAuthModal())
+      .catch((err) => { authError.textContent = err.message; });
+  });
+
+  // دخول برقم الهاتف (Firebase Phone Auth) — يحتاج خطة Blaze مفعّلة على مشروع Firebase
+  let confirmationResult = null;
+  $('sendOtpBtn').addEventListener('click', () => {
+    if (!firebaseReady) return;
+    const phone = $('phoneInput').value.trim();
+    if (!phone.startsWith('+')) {
+      authError.textContent = lang === 'ar' ? 'اكتب الرقم بصيغة دولية تبدأ بـ +' : 'Use international format starting with +';
+      return;
+    }
+    try {
+      if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptchaContainer', { size: 'invisible' });
+      }
+      firebase.auth().signInWithPhoneNumber(phone, window.recaptchaVerifier)
+        .then((result) => {
+          confirmationResult = result;
+          $('otpBlock').style.display = 'block';
+          authError.textContent = '';
+        })
+        .catch((err) => { authError.textContent = err.message; });
+    } catch (err) {
+      authError.textContent = String(err.message || err);
+    }
+  });
+  $('verifyOtpBtn').addEventListener('click', () => {
+    const code = $('otpInput').value.trim();
+    if (!confirmationResult || !code) return;
+    confirmationResult.confirm(code)
+      .then(() => closeAuthModal())
+      .catch((err) => { authError.textContent = err.message; });
+  });
+
+  function renderAuthUI(user){
+    currentUser = user;
+    const targets = [{ btn: 'loginBtn', mobile: false }, { btn: 'loginBtnMobile', mobile: true }];
+    targets.forEach(({ btn }) => {
+      const el = $(btn);
+      if (!el) return;
+      if (user) {
+        el.textContent = '';
+        el.classList.add('auth-user-chip');
+        const label = user.displayName || user.phoneNumber || (lang === 'ar' ? 'حسابي' : 'My account');
+        if (user.photoURL) {
+          const img = document.createElement('img');
+          img.src = user.photoURL;
+          el.appendChild(img);
+        }
+        const span = document.createElement('span');
+        span.textContent = label;
+        el.appendChild(span);
+      } else {
+        el.classList.remove('auth-user-chip');
+        el.innerHTML = '';
+        el.textContent = lang === 'ar' ? 'تسجيل الدخول' : 'Log in';
+      }
+    });
+  }
+
+  if (firebaseReady && typeof firebase !== 'undefined') {
+    firebase.auth().onAuthStateChanged((user) => renderAuthUI(user));
+  }
+
+  ['loginBtn', 'loginBtnMobile'].forEach((id) => {
+    const el = $(id);
+    if (el) el.addEventListener('click', () => {
+      mobileMenu.classList.remove('show');
+      if (currentUser) {
+        if (confirm(lang === 'ar' ? 'تسجيل الخروج؟' : 'Log out?')) {
+          firebase.auth().signOut();
+        }
+      } else {
+        openAuthModal();
+      }
+    });
+  });
+
+  $('footerAboutLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    aboutOverlay.classList.add('show');
+  });
+
+  // ===== نافذة الاشتراك المميز (2.99$/شهرياً — دفع عبر واتساب) =====
+  const pricingOverlay = $('pricingOverlay');
+  $('pricingProBtn').addEventListener('click', () => pricingOverlay.classList.add('show'));
+  $('pricingClose').addEventListener('click', () => pricingOverlay.classList.remove('show'));
+  pricingOverlay.addEventListener('click', (e) => {
+    if (e.target.id === 'pricingOverlay') pricingOverlay.classList.remove('show');
+  });
+  $('pricingFreeBtn').addEventListener('click', scrollToChat);
+
+  // شريط التنقل السفلي بالجوال
+  const bottomNavBtns = document.querySelectorAll('.mobile-bottom-nav button');
+  bottomNavBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      bottomNavBtns.forEach((b) => b.classList.remove('mobile-bottom-nav__active'));
+      btn.classList.add('mobile-bottom-nav__active');
+      const nav = btn.dataset.nav;
+      if (nav === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
+      else if (nav === 'chats') { scrollToChat(); openSidebar(); }
+      else if (nav === 'discover') $('features').scrollIntoView({ behavior: 'smooth' });
+      else if (nav === 'account') aboutOverlay.classList.add('show');
+    });
+  });
+
+  function applyTheme(){
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    themeBtn.title = THEME_NAMES[lang][currentTheme];
+    themeBtn.setAttribute('aria-label', THEME_NAMES[lang][currentTheme]);
+  }
+  themeBtn.addEventListener('click', () => {
+    const idx = THEMES.indexOf(currentTheme);
+    currentTheme = THEMES[(idx + 1) % THEMES.length];
+    localStorage.setItem(THEME_KEY, currentTheme);
+    applyTheme();
+  });
+  applyTheme();
+  aboutClose.addEventListener('click', () => aboutOverlay.classList.remove('show'));
+  aboutOverlay.addEventListener('click', (e) => {
+    if (e.target === aboutOverlay) aboutOverlay.classList.remove('show');
+  });
+
+  applyLang();
+  renderMessages();
+
+  // تسجيل Service Worker — يفعّل خاصية "التثبيت كتطبيق" على أندرويد وآيفون
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+  }
+
+  // ===== بانر تثبيت التطبيق =====
+  const INSTALL_DISMISS_KEY = 'nextra_install_dismissed';
+  const installBanner = $('installBanner');
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  let deferredInstallPrompt = null;
+
+  function dismissedRecently(){
+    const ts = localStorage.getItem(INSTALL_DISMISS_KEY);
+    if (!ts) return false;
+    return (Date.now() - Number(ts)) < 1000 * 60 * 60 * 24 * 7; // ما نعيد إظهاره إلا بعد أسبوع من آخر إغلاق
+  }
+
+  function showInstallBanner(){
+    if (isStandalone || dismissedRecently()) return;
+    installBanner.classList.add('show');
+  }
+
+  if (!isStandalone) {
+    if (isIOS) {
+      // آيفون ما يدعم beforeinstallprompt — نعرض تعليمات "إضافة للشاشة الرئيسية" بدل زر مباشر
+      $('installBannerSub').textContent = 'Safari ← زر المشاركة ← إضافة للشاشة الرئيسية';
+      $('installBannerBtn').style.display = 'none';
+      showInstallBanner();
+    } else {
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        showInstallBanner();
+      });
+    }
+  }
+
+  $('installBannerBtn').addEventListener('click', async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    installBanner.classList.remove('show');
+  });
+
+  $('installBannerClose').addEventListener('click', () => {
+    installBanner.classList.remove('show');
+    localStorage.setItem(INSTALL_DISMISS_KEY, String(Date.now()));
+  });
+
+  window.addEventListener('appinstalled', () => {
+    installBanner.classList.remove('show');
+  });
+})();
+</script>
+</body>
+</html>

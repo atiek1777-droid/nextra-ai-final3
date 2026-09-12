@@ -1,0 +1,39 @@
+{
+  "name": "Nextra AI | نكسترا — مساعد ذكاء اصطناعي مجاني",
+  "short_name": "Nextra AI",
+  "description": "مساعد ذكاء اصطناعي مجاني ثنائي اللغة، مع محادثة صوتية وتوليد صور",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#191f14",
+  "theme_color": "#191f14",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
