@@ -79,29 +79,29 @@ async function checkImageLimit(deviceId) {
 }
 
 // Groq أوقف llama-3.3-70b-versatile نهائياً بـ 17 يونيو 2026 — البديل الرسمي الموصى به من Groq نفسه: qwen/qwen3.6-27b
-const GROQ_MODEL = "qwen/qwen3.6-27b";
+const GROQ_MODEL = "openai/gpt-oss-120b";
 
 // كل تخصص له ترتيب مزوّدين من طبقتين (بعد حذف z-ai/glm-5.2 نهائياً — انتهى عمره رسمياً بتاريخ 2026-08-21 برسالة 410)
 // نعتمد بس على نماذج مُستخدمة ومُتحقق منها فعلياً بالكود (بدون أي اسم جديد غير مجرّب)
 const SPECIALIZATIONS = {
   general: [
-    { provider: "groq", model: GROQ_MODEL },
-    { provider: "nvidia", model: "deepseek-ai/deepseek-v4-flash" },
+    { provider: "groq", model: "openai/gpt-oss-120b" },
+    { provider: "groq", model: "openai/gpt-oss-20b" },
   ],
   coding: [
-    { provider: "nvidia", model: "deepseek-ai/deepseek-v4-flash" },
-    { provider: "groq", model: GROQ_MODEL },
+    { provider: "groq", model: "openai/gpt-oss-120b" },
+    { provider: "groq", model: "openai/gpt-oss-20b" },
   ],
   analysis: [
-    { provider: "nvidia", model: "mistralai/mistral-large-3-675b-instruct-2512" },
-    { provider: "groq", model: GROQ_MODEL },
+    { provider: "groq", model: "openai/gpt-oss-120b" },
+    { provider: "groq", model: "openai/gpt-oss-20b" },
   ],
 };
 
 // نماذج NVIDIA اللي تفهم صور (Vision) — تُستخدم فقط لما يرفع المستخدم صورة، بغض النظر عن التخصص المختار
 const VISION_ORDER = [
-  { provider: "nvidia", model: "mistralai/mistral-large-3-675b-instruct-2512" },
-  { provider: "nvidia", model: "nvidia/nemotron-3-nano-omni" },
+  { provider: "groq", model: "qwen/qwen3.8-27b" },
+  { provider: "groq", model: "openai/gpt-oss-120b" },
 ];
 
 const PROVIDER_URLS = {
